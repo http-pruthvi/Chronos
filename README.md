@@ -169,14 +169,3 @@ The services will be exposed at:
 - **Backend API Docs (Swagger)**: `http://localhost:3000/api/docs`
 
 ---
-
-## 7. Judge Q&A / Engineering Choices
-
-#### Q: How do you prevent N+1 query problems in dashboard aggregates?
-**A**: We leverage Prisma's `groupBy` and count aggregate queries inside the `DashboardRepository` to fetch headcount splits and stats in single queries. We avoid client-side stitching or loop-nested model queries.
-
-#### Q: How do you handle transaction safety during critical employee/salary changes?
-**A**: All write mutations in our services (e.g. employee creation, leave approvals, payroll runs) are wrapped inside a database transaction (`this.prisma.$transaction`). We pass the transaction client (`tx`) downstream to ensure all related logs and balance changes commit atomically or fail together.
-
-#### Q: How does the AI HR Policy chatbot function?
-**A**: It implements a RAG-lite architecture. It combines a static Markdown company policy document with the employee's live SQL leave balances. We construct a context-rich prompt and query the Gemini API if `GEMINI_API_KEY` is provided, with a zero-downtime local regex fallback if offline or no key is present.
