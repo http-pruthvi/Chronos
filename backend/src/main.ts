@@ -36,7 +36,9 @@ async function bootstrap() {
   // OpenAPI Swagger Documentation
   const config = new DocumentBuilder()
     .setTitle('HRMS API')
-    .setDescription('ERP-Grade Human Resource Management System REST API documentation')
+    .setDescription(
+      'ERP-Grade Human Resource Management System REST API documentation',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -46,7 +48,8 @@ async function bootstrap() {
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}/api/v1`);
-  console.log(`Swagger documentation is available at: http://localhost:${port}/api/docs`);
+  console.log(
+    `Swagger documentation is available at: http://localhost:${port}/api/docs`,
+  );
 }
-bootstrap();
-
+void bootstrap();

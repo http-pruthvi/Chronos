@@ -20,7 +20,12 @@ export class AttendanceRepository {
     });
   }
 
-  async create(employeeId: string, date: Date, checkIn: Date, status: AttendanceStatus) {
+  async create(
+    employeeId: string,
+    date: Date,
+    checkIn: Date,
+    status: AttendanceStatus,
+  ) {
     const todayDate = new Date(date);
     todayDate.setUTCHours(0, 0, 0, 0);
 
@@ -34,7 +39,12 @@ export class AttendanceRepository {
     });
   }
 
-  async update(id: string, checkOut: Date, workedMinutes: number, status: AttendanceStatus) {
+  async update(
+    id: string,
+    checkOut: Date,
+    workedMinutes: number,
+    status: AttendanceStatus,
+  ) {
     return this.prisma.attendance.update({
       where: { id },
       data: {

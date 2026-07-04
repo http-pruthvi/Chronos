@@ -12,8 +12,8 @@ export class AuditLogsRepository {
       action: string;
       entityType: string;
       entityId: string;
-      beforeState?: any;
-      afterState?: any;
+      beforeState?: Prisma.InputJsonValue;
+      afterState?: Prisma.InputJsonValue;
     },
     tx?: Prisma.TransactionClient,
   ) {
@@ -37,11 +37,11 @@ export class AuditLogsRepository {
     take?: number;
   }) {
     const where: Prisma.AuditLogWhereInput = {};
-    
+
     if (filters.entityType) {
       where.entityType = filters.entityType;
     }
-    
+
     if (filters.entityId) {
       where.entityId = filters.entityId;
     }

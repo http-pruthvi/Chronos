@@ -100,4 +100,13 @@ export class PayrollRepository {
       },
     });
   }
+
+  async findAllRuns() {
+    return this.prisma.payrollRun.findMany({
+      orderBy: [
+        { year: 'desc' },
+        { month: 'desc' },
+      ],
+    });
+  }
 }

@@ -1,5 +1,21 @@
-import { Controller, Post, Get, Param, Query, UseGuards, HttpStatus, HttpCode, BadRequestException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Query,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+  BadRequestException,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AttendanceService } from './attendance.service';
 import { AttendanceResponseDto } from './dto/attendance-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -24,7 +40,9 @@ export class AttendanceController {
     @CurrentUser('id') actorUserId: string,
   ) {
     if (!employeeId) {
-      throw new BadRequestException('This system administrator account is not linked to an employee profile.');
+      throw new BadRequestException(
+        'This system administrator account is not linked to an employee profile.',
+      );
     }
     const data = await this.attendanceService.checkIn(employeeId, actorUserId);
     return { data };
@@ -40,7 +58,9 @@ export class AttendanceController {
     @CurrentUser('id') actorUserId: string,
   ) {
     if (!employeeId) {
-      throw new BadRequestException('This system administrator account is not linked to an employee profile.');
+      throw new BadRequestException(
+        'This system administrator account is not linked to an employee profile.',
+      );
     }
     const data = await this.attendanceService.checkOut(employeeId, actorUserId);
     return { data };
@@ -58,9 +78,15 @@ export class AttendanceController {
     @Query('year') year?: number,
   ) {
     if (!employeeId) {
-      throw new BadRequestException('No employee profile associated with this user.');
+      throw new BadRequestException(
+        'No employee profile associated with this user.',
+      );
     }
-    const data = await this.attendanceService.getMyAttendance(employeeId, month, year);
+    const data = await this.attendanceService.getMyAttendance(
+      employeeId,
+      month,
+      year,
+    );
     return { data };
   }
 
@@ -76,15 +102,23 @@ export class AttendanceController {
     @Query('year') year?: number,
   ) {
     if (!employeeId) {
-      throw new BadRequestException('No employee profile associated with this manager user.');
+      throw new BadRequestException(
+        'No employee profile associated with this manager user.',
+      );
     }
-    const data = await this.attendanceService.getTeamAttendance(employeeId, month, year);
+    const data = await this.attendanceService.getTeamAttendance(
+      employeeId,
+      month,
+      year,
+    );
     return { data };
   }
 
   @Get(':employeeId')
   @Permissions('attendance:read_all')
-  @ApiOperation({ summary: 'Get specific employee attendance logs (HR, ADMIN)' })
+  @ApiOperation({
+    summary: 'Get specific employee attendance logs (HR, ADMIN)',
+  })
   @ApiQuery({ name: 'month', required: false, type: Number })
   @ApiQuery({ name: 'year', required: false, type: Number })
   @ApiResponse({ status: HttpStatus.OK })
@@ -93,7 +127,11 @@ export class AttendanceController {
     @Query('month') month?: number,
     @Query('year') year?: number,
   ) {
-    const data = await this.attendanceService.getEmployeeAttendance(employeeId, month, year);
+    const data = await this.attendanceService.getEmployeeAttendance(
+      employeeId,
+      month,
+      year,
+    );
     return { data };
   }
 }

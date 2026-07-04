@@ -1,5 +1,17 @@
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
@@ -17,7 +29,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login user and get access and refresh tokens' })
   @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid credentials',
+  })
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
   }
@@ -26,8 +41,14 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh JWT tokens using refresh token' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'New token set generated successfully' })
-  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Token invalid or revoked' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'New token set generated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Token invalid or revoked',
+  })
   async refresh(
     @Body() refreshDto: RefreshDto,
     @CurrentUser() user: { id: string; refreshToken: string },
@@ -41,7 +62,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout and revoke refresh token' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Successfully logged out' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully logged out',
+  })
   async logout(@CurrentUser('id') userId: string) {
     await this.authService.logout(userId);
     return { data: { message: 'Logged out successfully' } };

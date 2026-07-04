@@ -4,6 +4,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthRepository } from '../auth.repository';
 
+interface JwtPayload {
+  sub: string;
+  email: string;
+  role: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
@@ -17,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload) {
     const user = await this.authRepository.findById(payload.sub);
     if (!user || !user.isActive) {
       throw new UnauthorizedException('User is inactive or no longer exists');

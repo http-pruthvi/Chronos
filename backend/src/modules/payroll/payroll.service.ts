@@ -335,4 +335,8 @@ export class PayrollService {
 
     return anomalies;
   }
+
+  async getAllRuns() {
+    return this.payrollRepository.findAllRuns();
+  }
 }
