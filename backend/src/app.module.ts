@@ -7,6 +7,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DepartmentsModule } from './modules/departments/departments.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
+import { LeavesModule } from './modules/leaves/leaves.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
     DepartmentsModule,
     EmployeesModule,
     AuditLogsModule,
+    AttendanceModule,
+    LeavesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
