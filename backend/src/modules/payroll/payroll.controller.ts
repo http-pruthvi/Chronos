@@ -87,4 +87,13 @@ export class PayrollController {
     const data = await this.payrollService.getPayslip(id, employeeId, roleName);
     return { data };
   }
+
+  @Get('payroll/runs/:id/anomalies')
+  @Permissions('payroll:process') // Only HR/ADMIN who process payroll can view anomalies
+  @ApiOperation({ summary: 'Get list of payroll anomalies for a run (HR, ADMIN)' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Anomalies list retrieved successfully' })
+  async getAnomalies(@Param('id') id: string) {
+    const data = await this.payrollService.detectAnomalies(id);
+    return { data };
+  }
 }

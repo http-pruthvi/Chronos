@@ -275,4 +275,64 @@ export class PayrollService {
 
     return payslip;
   }
+
+  async detectAnomalies(payrollRunId: string) {
+    const run = await this.payrollRepository.findRunById(payrollRunId);
+    if (!run) {
+      throw new NotFoundException(`Payroll run with ID "${payrollRunId}" not found`);
+    }
+
+    const payslips = await this.prisma.payslip.findMany({
+      where: { payrollRunId },
+      include: { employee: true },
+    });
+
+    const anomalies = [];
+
+    for (const payslip of payslips) {
+      // Fetch employee's historical payslips (up to 3) before this payslip was generated
+      const history = await this.prisma.payslip.findMany({
+        where: {
+          employeeId: payslip.employeeId,
+          generatedAt: { lt: payslip.generatedAt },
+        },
+        orderBy: { generatedAt: 'desc' },
+        take: 3,
+      });
+
+      if (history.length < 3) {
+        continue; // Skip check if insufficient history
+      }
+
+      const netPays = history.map((h) => Number(h.netPay));
+      const mean = netPays.reduce((sum, val) => sum + val, 0) / netPays.length;
+      
+      const variance = netPays.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / netPays.length;
+      const stdDev = Math.sqrt(variance);
+
+      const currentNetPay = Number(payslip.netPay);
+      const pctDev = mean > 0 ? Math.abs(currentNetPay - mean) / mean : 0;
+      const zScore = stdDev > 0 ? Math.abs(currentNetPay - mean) / stdDev : 0;
+
+      // Anomaly trigger: Z-Score > 1.96 (standard statistical anomaly) OR absolute deviation > 15%
+      const isAnomaly = zScore > 1.96 || pctDev > 0.15;
+
+      if (isAnomaly) {
+        anomalies.push({
+          payslipId: payslip.id,
+          employeeCode: payslip.employee.employeeCode,
+          employeeName: `${payslip.employee.firstName} ${payslip.employee.lastName}`,
+          currentNetPay,
+          averageNetPay: Math.round(mean * 100) / 100,
+          deviationPercent: Math.round(pctDev * 10000) / 100,
+          zScore: Math.round(zScore * 100) / 100,
+          reason: zScore > 1.96 
+            ? `Net pay Z-score is ${Math.round(zScore * 100) / 100} (exceeds threshold 1.96)`
+            : `Net pay deviates by ${Math.round(pctDev * 100)}% from trailing 3-month average`,
+        });
+      }
+    }
+
+    return anomalies;
+  }
 }
