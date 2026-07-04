@@ -33,9 +33,9 @@ describe('HRMS Integration Tests (Critical Flows)', () => {
       }),
     );
     app.useGlobalFilters(new HttpExceptionFilter());
-    
+
     await app.init();
-    
+
     prisma = app.get<PrismaService>(PrismaService);
   });
 
@@ -44,7 +44,14 @@ describe('HRMS Integration Tests (Critical Flows)', () => {
     await prisma.attendance.deleteMany({
       where: {
         employee: {
-          email: { in: ['admin@demo.com', 'hr@demo.com', 'manager@demo.com', 'employee@demo.com'] },
+          email: {
+            in: [
+              'admin@demo.com',
+              'hr@demo.com',
+              'manager@demo.com',
+              'employee@demo.com',
+            ],
+          },
         },
       },
     });
@@ -52,7 +59,14 @@ describe('HRMS Integration Tests (Critical Flows)', () => {
     await prisma.leaveRequest.deleteMany({
       where: {
         employee: {
-          email: { in: ['admin@demo.com', 'hr@demo.com', 'manager@demo.com', 'employee@demo.com'] },
+          email: {
+            in: [
+              'admin@demo.com',
+              'hr@demo.com',
+              'manager@demo.com',
+              'employee@demo.com',
+            ],
+          },
         },
       },
     });
@@ -64,7 +78,14 @@ describe('HRMS Integration Tests (Critical Flows)', () => {
     await prisma.leaveBalance.updateMany({
       where: {
         employee: {
-          email: { in: ['admin@demo.com', 'hr@demo.com', 'manager@demo.com', 'employee@demo.com'] },
+          email: {
+            in: [
+              'admin@demo.com',
+              'hr@demo.com',
+              'manager@demo.com',
+              'employee@demo.com',
+            ],
+          },
         },
       },
       data: { used: 0 },
@@ -116,6 +137,7 @@ describe('HRMS Integration Tests (Critical Flows)', () => {
 
       managerToken = response.body.accessToken;
       managerId = response.body.user.employeeId;
+      expect(managerId).toBeDefined();
     });
 
     it('should successfully login as Employee', async () => {
@@ -313,13 +335,13 @@ describe('HRMS Integration Tests (Critical Flows)', () => {
       });
 
       expect(payslips.length).toBeGreaterThan(0);
-      
+
       // Let's verify that net pay is positive and equals gross - deductions
       const testPayslip = payslips[0];
       const netPay = Number(testPayslip.netPay);
       const grossPay = Number(testPayslip.grossPay);
       const deductions = Number(testPayslip.totalDeductions);
-      
+
       expect(netPay).toBe(Math.max(0, grossPay - deductions));
     });
   });

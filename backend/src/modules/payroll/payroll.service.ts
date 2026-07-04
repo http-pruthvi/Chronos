@@ -1,7 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PayrollRepository } from './payroll.repository';
 import { CreatePayrollRunDto } from './dto/create-payroll-run.dto';
-import { PayrollRunStatus, SalaryComponentType, LeaveRequestStatus, Prisma } from '@prisma/client';
+import {
+  PayrollRunStatus,
+  SalaryComponentType,
+  LeaveRequestStatus,
+  Prisma,
+} from '@prisma/client';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -16,9 +26,14 @@ export class PayrollService {
   ) {}
 
   async createRun(dto: CreatePayrollRunDto, actorUserId: string) {
-    const existing = await this.payrollRepository.findRunByMonthYear(dto.month, dto.year);
+    const existing = await this.payrollRepository.findRunByMonthYear(
+      dto.month,
+      dto.year,
+    );
     if (existing) {
-      throw new BadRequestException(`A payroll run already exists for ${dto.month}/${dto.year}`);
+      throw new BadRequestException(
+        `A payroll run already exists for ${dto.month}/${dto.year}`,
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -30,13 +45,16 @@ export class PayrollService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'PAYROLL_RUN_CREATED',
-        entityType: 'PayrollRun',
-        entityId: run.id,
-        afterState: run,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'PAYROLL_RUN_CREATED',
+          entityType: 'PayrollRun',
+          entityId: run.id,
+          afterState: run,
+        },
+        tx,
+      );
 
       return run;
     });
@@ -49,11 +67,13 @@ export class PayrollService {
     }
 
     if (run.status === PayrollRunStatus.PAID) {
-      throw new BadRequestException('Cannot reprocess a paid/locked payroll run');
+      throw new BadRequestException(
+        'Cannot reprocess a paid/locked payroll run',
+      );
     }
 
     const { month, year } = run;
-    
+
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59, 999);
     const totalDaysInMonth = new Date(year, month, 0).getDate();
@@ -62,10 +82,7 @@ export class PayrollService {
       where: {
         deletedAt: null,
         dateOfJoining: { lte: endDate },
-        OR: [
-          { dateOfExit: null },
-          { dateOfExit: { gte: startDate } },
-        ],
+        OR: [{ dateOfExit: null }, { dateOfExit: { gte: startDate } }],
       },
       include: {
         salaryStructures: {
@@ -86,7 +103,7 @@ export class PayrollService {
       for (const emp of employees) {
         let activeDays = totalDaysInMonth;
         const joinDate = new Date(emp.dateOfJoining);
-        
+
         if (joinDate.getTime() > startDate.getTime()) {
           activeDays = totalDaysInMonth - joinDate.getDate() + 1;
         }
@@ -98,7 +115,7 @@ export class PayrollService {
             activeDays = activeDays - unworkedAfterExit;
           }
         }
-        
+
         activeDays = Math.max(0, activeDays);
 
         const unpaidLeaves = await tx.leaveRequest.findMany({
@@ -113,8 +130,12 @@ export class PayrollService {
 
         let unpaidLeaveDays = 0;
         for (const leave of unpaidLeaves) {
-          const leaveStart = new Date(Math.max(leave.startDate.getTime(), startDate.getTime()));
-          const leaveEnd = new Date(Math.min(leave.endDate.getTime(), endDate.getTime()));
+          const leaveStart = new Date(
+            Math.max(leave.startDate.getTime(), startDate.getTime()),
+          );
+          const leaveEnd = new Date(
+            Math.min(leave.endDate.getTime(), endDate.getTime()),
+          );
           const diff = Math.abs(leaveEnd.getTime() - leaveStart.getTime());
           const overlapDays = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
           unpaidLeaveDays += overlapDays;
@@ -137,8 +158,14 @@ export class PayrollService {
           }
         }
 
-        const totalUnpaidDays = Math.min(activeDays, unpaidLeaveDays + absentDays);
-        const prorationFactor = activeDays > 0 ? (activeDays - totalUnpaidDays) / totalDaysInMonth : 0;
+        const totalUnpaidDays = Math.min(
+          activeDays,
+          unpaidLeaveDays + absentDays,
+        );
+        const prorationFactor =
+          activeDays > 0
+            ? (activeDays - totalUnpaidDays) / totalDaysInMonth
+            : 0;
 
         let grossPay = 0;
         let totalDeductions = 0;
@@ -146,7 +173,8 @@ export class PayrollService {
 
         for (const struct of emp.salaryStructures) {
           const originalValue = Number(struct.value);
-          const proratedValue = Math.round(originalValue * prorationFactor * 100) / 100;
+          const proratedValue =
+            Math.round(originalValue * prorationFactor * 100) / 100;
 
           if (struct.component.type === SalaryComponentType.EARNING) {
             grossPay += proratedValue;
@@ -187,14 +215,17 @@ export class PayrollService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'PAYROLL_RUN_PROCESSED',
-        entityType: 'PayrollRun',
-        entityId: id,
-        beforeState: run,
-        afterState: updatedRun,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'PAYROLL_RUN_PROCESSED',
+          entityType: 'PayrollRun',
+          entityId: id,
+          beforeState: run,
+          afterState: updatedRun,
+        },
+        tx,
+      );
 
       return { updatedRun, payslips: payslipsData };
     });
@@ -223,7 +254,9 @@ export class PayrollService {
     }
 
     if (run.status !== PayrollRunStatus.PROCESSED) {
-      throw new BadRequestException('Payroll run must be processed before it can be marked as paid');
+      throw new BadRequestException(
+        'Payroll run must be processed before it can be marked as paid',
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -234,14 +267,17 @@ export class PayrollService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'PAYROLL_RUN_PAID',
-        entityType: 'PayrollRun',
-        entityId: id,
-        beforeState: run,
-        afterState: updatedRun,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'PAYROLL_RUN_PAID',
+          entityType: 'PayrollRun',
+          entityId: id,
+          beforeState: run,
+          afterState: updatedRun,
+        },
+        tx,
+      );
 
       return updatedRun;
     });
@@ -259,7 +295,11 @@ export class PayrollService {
     return this.payrollRepository.findOwnPayslips(employeeId);
   }
 
-  async getPayslip(id: string, requesterEmployeeId: string | null, roleName: string) {
+  async getPayslip(
+    id: string,
+    requesterEmployeeId: string | null,
+    roleName: string,
+  ) {
     const payslip = await this.payrollRepository.findPayslipById(id);
     if (!payslip) {
       throw new NotFoundException(`Payslip with ID "${id}" not found`);
@@ -270,7 +310,9 @@ export class PayrollService {
     const isOwner = payslip.employeeId === requesterEmployeeId;
 
     if (!isAdmin && !isHR && !isOwner) {
-      throw new ForbiddenException('Access Denied: You cannot view this payslip');
+      throw new ForbiddenException(
+        'Access Denied: You cannot view this payslip',
+      );
     }
 
     return payslip;
@@ -279,7 +321,9 @@ export class PayrollService {
   async detectAnomalies(payrollRunId: string) {
     const run = await this.payrollRepository.findRunById(payrollRunId);
     if (!run) {
-      throw new NotFoundException(`Payroll run with ID "${payrollRunId}" not found`);
+      throw new NotFoundException(
+        `Payroll run with ID "${payrollRunId}" not found`,
+      );
     }
 
     const payslips = await this.prisma.payslip.findMany({
@@ -306,8 +350,10 @@ export class PayrollService {
 
       const netPays = history.map((h) => Number(h.netPay));
       const mean = netPays.reduce((sum, val) => sum + val, 0) / netPays.length;
-      
-      const variance = netPays.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / netPays.length;
+
+      const variance =
+        netPays.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+        netPays.length;
       const stdDev = Math.sqrt(variance);
 
       const currentNetPay = Number(payslip.netPay);
@@ -326,9 +372,10 @@ export class PayrollService {
           averageNetPay: Math.round(mean * 100) / 100,
           deviationPercent: Math.round(pctDev * 10000) / 100,
           zScore: Math.round(zScore * 100) / 100,
-          reason: zScore > 1.96 
-            ? `Net pay Z-score is ${Math.round(zScore * 100) / 100} (exceeds threshold 1.96)`
-            : `Net pay deviates by ${Math.round(pctDev * 100)}% from trailing 3-month average`,
+          reason:
+            zScore > 1.96
+              ? `Net pay Z-score is ${Math.round(zScore * 100) / 100} (exceeds threshold 1.96)`
+              : `Net pay deviates by ${Math.round(pctDev * 100)}% from trailing 3-month average`,
         });
       }
     }

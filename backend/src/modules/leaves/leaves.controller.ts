@@ -1,5 +1,21 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, HttpStatus, HttpCode, BadRequestException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+  BadRequestException,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { LeavesService } from './leaves.service';
 import { ApplyLeaveDto } from './dto/apply-leave.dto';
 import { LeaveRequestResponseDto } from './dto/leave-request-response.dto';
@@ -26,11 +42,15 @@ export class LeavesController {
 
   @Get('leave-balances/me')
   @Permissions('leave:read')
-  @ApiOperation({ summary: 'Get current year leave balances for logged in employee' })
+  @ApiOperation({
+    summary: 'Get current year leave balances for logged in employee',
+  })
   @ApiResponse({ status: HttpStatus.OK })
   async getMyBalances(@CurrentUser('employeeId') employeeId: string | null) {
     if (!employeeId) {
-      throw new BadRequestException('No employee profile associated with this user.');
+      throw new BadRequestException(
+        'No employee profile associated with this user.',
+      );
     }
     const data = await this.leavesService.getLeaveBalances(employeeId);
     return { data };
@@ -47,9 +67,15 @@ export class LeavesController {
     @CurrentUser('id') actorUserId: string,
   ) {
     if (!employeeId) {
-      throw new BadRequestException('No employee profile associated with this user.');
+      throw new BadRequestException(
+        'No employee profile associated with this user.',
+      );
     }
-    const data = await this.leavesService.applyLeave(applyLeaveDto, employeeId, actorUserId);
+    const data = await this.leavesService.applyLeave(
+      applyLeaveDto,
+      employeeId,
+      actorUserId,
+    );
     return { data };
   }
 
@@ -59,7 +85,9 @@ export class LeavesController {
   @ApiResponse({ status: HttpStatus.OK, type: [LeaveRequestResponseDto] })
   async getMyRequests(@CurrentUser('employeeId') employeeId: string | null) {
     if (!employeeId) {
-      throw new BadRequestException('No employee profile associated with this user.');
+      throw new BadRequestException(
+        'No employee profile associated with this user.',
+      );
     }
     const data = await this.leavesService.getOwnRequests(employeeId);
     return { data };
@@ -73,13 +101,18 @@ export class LeavesController {
     @CurrentUser('employeeId') employeeId: string | null,
     @CurrentUser('role') roleName: string,
   ) {
-    const data = await this.leavesService.getPendingRequests(employeeId || '', roleName);
+    const data = await this.leavesService.getPendingRequests(
+      employeeId || '',
+      roleName,
+    );
     return { data };
   }
 
   @Patch('leave-requests/:id/approve')
   @Permissions('leave:approve')
-  @ApiOperation({ summary: 'Approve a pending leave request (MANAGER, HR, ADMIN)' })
+  @ApiOperation({
+    summary: 'Approve a pending leave request (MANAGER, HR, ADMIN)',
+  })
   @ApiResponse({ status: HttpStatus.OK, type: LeaveRequestResponseDto })
   async approveLeave(
     @Param('id') id: string,
@@ -87,13 +120,20 @@ export class LeavesController {
     @CurrentUser('role') roleName: string,
     @CurrentUser('id') actorUserId: string,
   ) {
-    const data = await this.leavesService.approve(id, approverEmployeeId || '', roleName, actorUserId);
+    const data = await this.leavesService.approve(
+      id,
+      approverEmployeeId || '',
+      roleName,
+      actorUserId,
+    );
     return { data };
   }
 
   @Patch('leave-requests/:id/reject')
   @Permissions('leave:approve')
-  @ApiOperation({ summary: 'Reject a pending leave request (MANAGER, HR, ADMIN)' })
+  @ApiOperation({
+    summary: 'Reject a pending leave request (MANAGER, HR, ADMIN)',
+  })
   @ApiResponse({ status: HttpStatus.OK, type: LeaveRequestResponseDto })
   async rejectLeave(
     @Param('id') id: string,
@@ -101,7 +141,12 @@ export class LeavesController {
     @CurrentUser('role') roleName: string,
     @CurrentUser('id') actorUserId: string,
   ) {
-    const data = await this.leavesService.reject(id, approverEmployeeId || '', roleName, actorUserId);
+    const data = await this.leavesService.reject(
+      id,
+      approverEmployeeId || '',
+      roleName,
+      actorUserId,
+    );
     return { data };
   }
 
@@ -115,7 +160,9 @@ export class LeavesController {
     @CurrentUser('id') actorUserId: string,
   ) {
     if (!employeeId) {
-      throw new BadRequestException('No employee profile associated with this user.');
+      throw new BadRequestException(
+        'No employee profile associated with this user.',
+      );
     }
     const data = await this.leavesService.cancel(id, employeeId, actorUserId);
     return { data };

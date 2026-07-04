@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 const COMPANY_POLICY = `
@@ -40,7 +40,10 @@ export class AIService {
     });
 
     const balanceString = balances
-      .map((b) => `- ${b.leaveType.name}: Allocated = ${b.allocated}, Used = ${b.used}, Available = ${Number(b.allocated) - Number(b.used)}`)
+      .map(
+        (b) =>
+          `- ${b.leaveType.name}: Allocated = ${b.allocated.toString()}, Used = ${b.used.toString()}, Available = ${(Number(b.allocated) - Number(b.used)).toString()}`,
+      )
       .join('\n');
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -77,12 +80,15 @@ Answer:`;
 
         const json: any = await response.json();
         const responseText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-        
+
         if (responseText) {
           return { response: responseText.trim() };
         }
       } catch (err) {
-        console.error('Gemini API call failed, falling back to local responder:', err);
+        console.error(
+          'Gemini API call failed, falling back to local responder:',
+          err,
+        );
       }
     }
 
@@ -93,33 +99,63 @@ Answer:`;
 
   private getFallbackResponse(message: string, balances: any[]) {
     const msg = message.toLowerCase();
-    
+
     // Find balances
-    const cl = balances.find((b) => b.leaveType.name.toLowerCase().includes('casual')) || { allocated: 12, used: 0 };
-    const sl = balances.find((b) => b.leaveType.name.toLowerCase().includes('sick')) || { allocated: 10, used: 0 };
-    const el = balances.find((b) => b.leaveType.name.toLowerCase().includes('earned')) || { allocated: 15, used: 0 };
+    const cl = balances.find((b) =>
+      b.leaveType.name.toLowerCase().includes('casual'),
+    ) || { allocated: 12, used: 0 };
+    const sl = balances.find((b) =>
+      b.leaveType.name.toLowerCase().includes('sick'),
+    ) || { allocated: 10, used: 0 };
+    const el = balances.find((b) =>
+      b.leaveType.name.toLowerCase().includes('earned'),
+    ) || { allocated: 15, used: 0 };
 
     const clAvailable = Number(cl.allocated) - Number(cl.used);
     const slAvailable = Number(sl.allocated) - Number(sl.used);
     const elAvailable = Number(el.allocated) - Number(el.used);
 
-    if (msg.includes('combine') && (msg.includes('casual') || msg.includes('sick'))) {
+    if (
+      msg.includes('combine') &&
+      (msg.includes('casual') || msg.includes('sick'))
+    ) {
       return `According to section 1 and 2 of the company policy, **Casual Leaves cannot be combined with Sick Leaves** under any circumstances. You currently have **${clAvailable} Casual Leaves** and **${slAvailable} Sick Leaves** available.`;
     }
 
-    if (msg.includes('casual') && (msg.includes('left') || msg.includes('balance') || msg.includes('many') || msg.includes('have'))) {
+    if (
+      msg.includes('casual') &&
+      (msg.includes('left') ||
+        msg.includes('balance') ||
+        msg.includes('many') ||
+        msg.includes('have'))
+    ) {
       return `You have **${clAvailable} Casual Leaves** remaining (Quota: ${cl.allocated}, Used: ${cl.used}). Please note that casual leaves do not carry forward to next year and must be used before December 31st.`;
     }
 
-    if (msg.includes('sick') && (msg.includes('left') || msg.includes('balance') || msg.includes('many') || msg.includes('have'))) {
+    if (
+      msg.includes('sick') &&
+      (msg.includes('left') ||
+        msg.includes('balance') ||
+        msg.includes('many') ||
+        msg.includes('have'))
+    ) {
       return `You have **${slAvailable} Sick Leaves** remaining (Quota: ${sl.allocated}, Used: ${sl.used}). Remember that if you take a sick leave for more than 3 consecutive days, a doctor's note is required upon your return.`;
     }
 
-    if (msg.includes('carry forward') || msg.includes('carry-forward') || msg.includes('earned')) {
+    if (
+      msg.includes('carry forward') ||
+      msg.includes('carry-forward') ||
+      msg.includes('earned')
+    ) {
       return `Only **Earned Leaves** can be carried forward, up to a maximum cumulative limit of 30 days. Casual and Sick leaves do not carry forward. You currently have **${elAvailable} Earned Leaves** remaining.`;
     }
 
-    if (msg.includes('late') || msg.includes('grace') || msg.includes('attendance') || msg.includes('half')) {
+    if (
+      msg.includes('late') ||
+      msg.includes('grace') ||
+      msg.includes('attendance') ||
+      msg.includes('half')
+    ) {
       return `Our attendance policy states:
 - Standard shift starts at **09:00 AM**.
 - Grace period is **15 minutes** (up to 09:15 AM). Checking in after this flags you as **LATE**.

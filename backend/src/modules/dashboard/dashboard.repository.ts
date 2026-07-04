@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { EmployeeStatus, AttendanceStatus, LeaveRequestStatus, PayrollRunStatus } from '@prisma/client';
+import {
+  EmployeeStatus,
+  AttendanceStatus,
+  LeaveRequestStatus,
+} from '@prisma/client';
 
 @Injectable()
 export class DashboardRepository {
@@ -57,7 +61,11 @@ export class DashboardRepository {
         date: today,
         checkIn: { not: null },
         status: {
-          in: [AttendanceStatus.PRESENT, AttendanceStatus.LATE, AttendanceStatus.HALF_DAY],
+          in: [
+            AttendanceStatus.PRESENT,
+            AttendanceStatus.LATE,
+            AttendanceStatus.HALF_DAY,
+          ],
         },
       },
     });
@@ -215,7 +223,7 @@ export class DashboardRepository {
       if (i === 0 && dateVal < expectedTime) {
         expectedTime = dateVal;
       }
-      
+
       const diffDays = (expectedTime - dateVal) / (1000 * 60 * 60 * 24);
       if (diffDays <= 1) {
         currentStreak++;

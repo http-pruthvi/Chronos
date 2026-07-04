@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { NotificationsRepository } from './notifications.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -10,7 +14,11 @@ export class NotificationsService {
   ) {}
 
   async create(userId: string, title: string, body?: string) {
-    const notification = await this.notificationsRepository.create(userId, title, body);
+    const notification = await this.notificationsRepository.create(
+      userId,
+      title,
+      body,
+    );
 
     // Fetch user details for the email stub
     const user = await this.prisma.user.findUnique({
@@ -35,7 +43,9 @@ export class NotificationsService {
     }
 
     if (notification.userId !== userId) {
-      throw new ForbiddenException('Access Denied: You cannot edit this notification');
+      throw new ForbiddenException(
+        'Access Denied: You cannot edit this notification',
+      );
     }
 
     return this.notificationsRepository.markAsRead(id);
@@ -44,9 +54,14 @@ export class NotificationsService {
   /**
    * Stub Email Interface for future production scale-out
    */
-  private async sendEmailStub(toEmail: string, subject: string, body: string): Promise<void> {
+  private async sendEmailStub(
+    toEmail: string,
+    subject: string,
+    body: string,
+  ): Promise<void> {
     // STUB: Integration point for SMTP/SendGrid/SES
     // In production, this would dispatch to a BullMQ job queue to process asynchronously.
+    await Promise.resolve();
     console.log(`[EMAIL INTEGRATION STUB] Dispatched email:
       To: ${toEmail}
       Subject: ${subject}

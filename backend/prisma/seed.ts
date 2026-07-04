@@ -1,4 +1,8 @@
-import { PrismaClient, EmployeeStatus, AttendanceStatus, LeaveRequestStatus, SalaryComponentType, PayrollRunStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  EmployeeStatus,
+  SalaryComponentType,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -16,7 +20,7 @@ async function main() {
     { code: 'employee:read', description: 'Read employee profile' },
     { code: 'employee:update', description: 'Update employee profile' },
     { code: 'employee:delete', description: 'Soft delete employee profile' },
-    
+
     // Department
     { code: 'department:create', description: 'Create department' },
     { code: 'department:read', description: 'Read departments' },
@@ -27,7 +31,10 @@ async function main() {
     { code: 'attendance:checkin', description: 'Self check-in/out' },
     { code: 'attendance:read', description: 'Read own attendance' },
     { code: 'attendance:read_team', description: 'Read team attendance' },
-    { code: 'attendance:read_all', description: 'Read all employee attendance' },
+    {
+      code: 'attendance:read_all',
+      description: 'Read all employee attendance',
+    },
 
     // Leave
     { code: 'leave:apply', description: 'Apply for leave' },
@@ -57,9 +64,16 @@ async function main() {
   // 2. Seed Roles
   const rolesData = [
     { name: 'ADMIN', description: 'System Administrator with full access' },
-    { name: 'HR', description: 'Human Resources with access to employees, departments, and payroll' },
+    {
+      name: 'HR',
+      description:
+        'Human Resources with access to employees, departments, and payroll',
+    },
     { name: 'MANAGER', description: 'Team Manager with approval access' },
-    { name: 'EMPLOYEE', description: 'Regular employee with self-service access' },
+    {
+      name: 'EMPLOYEE',
+      description: 'Regular employee with self-service access',
+    },
   ];
 
   const roles: Record<string, any> = {};
@@ -75,21 +89,37 @@ async function main() {
   const rolePermissionsMap: Record<string, string[]> = {
     ADMIN: Object.keys(permissions),
     HR: [
-      'employee:create', 'employee:read', 'employee:update',
+      'employee:create',
+      'employee:read',
+      'employee:update',
       'department:read',
-      'attendance:checkin', 'attendance:read', 'attendance:read_all',
-      'leave:apply', 'leave:read', 'leave:approve', 'leave:read_all',
-      'payroll:run', 'payroll:process', 'payroll:read', 'payroll:read_all',
+      'attendance:checkin',
+      'attendance:read',
+      'attendance:read_all',
+      'leave:apply',
+      'leave:read',
+      'leave:approve',
+      'leave:read_all',
+      'payroll:run',
+      'payroll:process',
+      'payroll:read',
+      'payroll:read_all',
     ],
     MANAGER: [
       'employee:read',
-      'attendance:checkin', 'attendance:read', 'attendance:read_team',
-      'leave:apply', 'leave:read', 'leave:approve',
+      'attendance:checkin',
+      'attendance:read',
+      'attendance:read_team',
+      'leave:apply',
+      'leave:read',
+      'leave:approve',
       'payroll:read',
     ],
     EMPLOYEE: [
-      'attendance:checkin', 'attendance:read',
-      'leave:apply', 'leave:read',
+      'attendance:checkin',
+      'attendance:read',
+      'leave:apply',
+      'leave:read',
       'payroll:read',
     ],
   };
@@ -331,7 +361,16 @@ async function main() {
     },
   });
 
-  const allEmployees = [empAdmin, empHR, empManager, empDeveloper, empQA, empDevOps, empHRRecruiter, empProductManager];
+  const allEmployees = [
+    empAdmin,
+    empHR,
+    empManager,
+    empDeveloper,
+    empQA,
+    empDevOps,
+    empHRRecruiter,
+    empProductManager,
+  ];
 
   // 6. Seed Leave Types
   const leaveTypesData = [
@@ -367,13 +406,48 @@ async function main() {
 
   // 8. Seed Salary Components
   const componentsData = [
-    { name: 'Basic Salary', type: SalaryComponentType.EARNING, isPercentage: false, defaultValue: 50000 },
-    { name: 'House Rent Allowance (HRA)', type: SalaryComponentType.EARNING, isPercentage: false, defaultValue: 20000 },
-    { name: 'Special Allowance', type: SalaryComponentType.EARNING, isPercentage: false, defaultValue: 10000 },
-    { name: 'Bonus', type: SalaryComponentType.EARNING, isPercentage: false, defaultValue: 0 },
-    { name: 'Provident Fund (PF)', type: SalaryComponentType.DEDUCTION, isPercentage: false, defaultValue: 6000 },
-    { name: 'Tax Deducted at Source (TDS)', type: SalaryComponentType.DEDUCTION, isPercentage: false, defaultValue: 5000 },
-    { name: 'Professional Tax', type: SalaryComponentType.DEDUCTION, isPercentage: false, defaultValue: 200 },
+    {
+      name: 'Basic Salary',
+      type: SalaryComponentType.EARNING,
+      isPercentage: false,
+      defaultValue: 50000,
+    },
+    {
+      name: 'House Rent Allowance (HRA)',
+      type: SalaryComponentType.EARNING,
+      isPercentage: false,
+      defaultValue: 20000,
+    },
+    {
+      name: 'Special Allowance',
+      type: SalaryComponentType.EARNING,
+      isPercentage: false,
+      defaultValue: 10000,
+    },
+    {
+      name: 'Bonus',
+      type: SalaryComponentType.EARNING,
+      isPercentage: false,
+      defaultValue: 0,
+    },
+    {
+      name: 'Provident Fund (PF)',
+      type: SalaryComponentType.DEDUCTION,
+      isPercentage: false,
+      defaultValue: 6000,
+    },
+    {
+      name: 'Tax Deducted at Source (TDS)',
+      type: SalaryComponentType.DEDUCTION,
+      isPercentage: false,
+      defaultValue: 5000,
+    },
+    {
+      name: 'Professional Tax',
+      type: SalaryComponentType.DEDUCTION,
+      isPercentage: false,
+      defaultValue: 200,
+    },
   ];
 
   const components: Record<string, any> = {};
@@ -387,25 +461,88 @@ async function main() {
 
   // 9. Seed Salary Structure for each employee
   // Basic structures based on designation
-  const salaryMap: Record<string, { basic: number; hra: number; allowance: number; pf: number; tds: number }> = {
-    'Chief Technology Officer': { basic: 120000, hra: 48000, allowance: 20000, pf: 14400, tds: 25000 },
-    'HR Director': { basic: 70000, hra: 28000, allowance: 10000, pf: 8400, tds: 10000 },
-    'Engineering Manager': { basic: 90000, hra: 36000, allowance: 15000, pf: 10800, tds: 15000 },
-    'Senior Software Engineer': { basic: 65000, hra: 26000, allowance: 10000, pf: 7800, tds: 8000 },
-    'QA Automation Engineer': { basic: 45000, hra: 18000, allowance: 8000, pf: 5400, tds: 4000 },
-    'DevOps Engineer': { basic: 55000, hra: 22000, allowance: 8000, pf: 6600, tds: 6000 },
-    'Technical Recruiter': { basic: 40000, hra: 16000, allowance: 5000, pf: 4800, tds: 3000 },
-    'Senior Product Manager': { basic: 80000, hra: 32000, allowance: 12000, pf: 9600, tds: 12000 },
+  const salaryMap: Record<
+    string,
+    { basic: number; hra: number; allowance: number; pf: number; tds: number }
+  > = {
+    'Chief Technology Officer': {
+      basic: 120000,
+      hra: 48000,
+      allowance: 20000,
+      pf: 14400,
+      tds: 25000,
+    },
+    'HR Director': {
+      basic: 70000,
+      hra: 28000,
+      allowance: 10000,
+      pf: 8400,
+      tds: 10000,
+    },
+    'Engineering Manager': {
+      basic: 90000,
+      hra: 36000,
+      allowance: 15000,
+      pf: 10800,
+      tds: 15000,
+    },
+    'Senior Software Engineer': {
+      basic: 65000,
+      hra: 26000,
+      allowance: 10000,
+      pf: 7800,
+      tds: 8000,
+    },
+    'QA Automation Engineer': {
+      basic: 45000,
+      hra: 18000,
+      allowance: 8000,
+      pf: 5400,
+      tds: 4000,
+    },
+    'DevOps Engineer': {
+      basic: 55000,
+      hra: 22000,
+      allowance: 8000,
+      pf: 6600,
+      tds: 6000,
+    },
+    'Technical Recruiter': {
+      basic: 40000,
+      hra: 16000,
+      allowance: 5000,
+      pf: 4800,
+      tds: 3000,
+    },
+    'Senior Product Manager': {
+      basic: 80000,
+      hra: 32000,
+      allowance: 12000,
+      pf: 9600,
+      tds: 12000,
+    },
   };
 
   for (const emp of allEmployees) {
-    const sal = salaryMap[emp.designation] || { basic: 30000, hra: 12000, allowance: 5000, pf: 3600, tds: 2000 };
+    const sal = salaryMap[emp.designation] || {
+      basic: 30000,
+      hra: 12000,
+      allowance: 5000,
+      pf: 3600,
+      tds: 2000,
+    };
     const empStructure = [
       { componentId: components['Basic Salary'].id, value: sal.basic },
-      { componentId: components['House Rent Allowance (HRA)'].id, value: sal.hra },
+      {
+        componentId: components['House Rent Allowance (HRA)'].id,
+        value: sal.hra,
+      },
       { componentId: components['Special Allowance'].id, value: sal.allowance },
       { componentId: components['Provident Fund (PF)'].id, value: sal.pf },
-      { componentId: components['Tax Deducted at Source (TDS)'].id, value: sal.tds },
+      {
+        componentId: components['Tax Deducted at Source (TDS)'].id,
+        value: sal.tds,
+      },
       { componentId: components['Professional Tax'].id, value: 200 },
     ];
 

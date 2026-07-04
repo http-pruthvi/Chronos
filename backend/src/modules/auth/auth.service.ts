@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -31,8 +35,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role.name);
-    
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role.name,
+    );
+
     // Hash and store the refresh token
     const salt = await bcrypt.genSalt(12);
     const refreshTokenHash = await bcrypt.hash(tokens.refreshToken, salt);
@@ -50,14 +58,20 @@ export class AuthService {
     };
   }
 
-  async refresh(userId: string, refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async refresh(
+    userId: string,
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.authRepository.findById(userId);
 
     if (!user || !user.refreshTokenHash || !user.isActive) {
       throw new ForbiddenException('Access Denied');
     }
 
-    const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+    const isRefreshTokenValid = await bcrypt.compare(
+      refreshToken,
+      user.refreshTokenHash,
+    );
     if (!isRefreshTokenValid) {
       // Rotation violation or invalid token - revoke immediately
       await this.authRepository.updateRefreshToken(userId, null);
@@ -65,8 +79,12 @@ export class AuthService {
     }
 
     // Generate new tokens
-    const tokens = await this.generateTokens(user.id, user.email, user.role.name);
-    
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role.name,
+    );
+
     // Hash and store new refresh token (Rotate)
     const salt = await bcrypt.genSalt(12);
     const refreshTokenHash = await bcrypt.hash(tokens.refreshToken, salt);
@@ -86,8 +104,11 @@ export class AuthService {
       role,
     };
 
-    const accessTokenSecret = this.configService.get<string>('JWT_SECRET') || 'default_secret';
-    const refreshTokenSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || 'default_refresh_secret';
+    const accessTokenSecret =
+      this.configService.get<string>('JWT_SECRET') || 'default_secret';
+    const refreshTokenSecret =
+      this.configService.get<string>('JWT_REFRESH_SECRET') ||
+      'default_refresh_secret';
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {

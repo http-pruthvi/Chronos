@@ -80,8 +80,14 @@ describe('AuthService', () => {
       });
 
       expect(repository.findByEmail).toHaveBeenCalledWith('employee@demo.com');
-      expect(bcrypt.compare).toHaveBeenCalledWith('DemoPassword123!', 'hashed_password');
-      expect(repository.updateRefreshToken).toHaveBeenCalledWith('user-uuid', 'new_refresh_hash');
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        'DemoPassword123!',
+        'hashed_password',
+      );
+      expect(repository.updateRefreshToken).toHaveBeenCalledWith(
+        'user-uuid',
+        'new_refresh_hash',
+      );
       expect(result).toEqual({
         accessToken: 'access_token',
         refreshToken: 'refresh_token',
@@ -159,11 +165,20 @@ describe('AuthService', () => {
         .mockResolvedValueOnce('new_access_token')
         .mockResolvedValueOnce('new_refresh_token');
 
-      const result = await service.refresh('user-uuid', 'incoming_refresh_token');
+      const result = await service.refresh(
+        'user-uuid',
+        'incoming_refresh_token',
+      );
 
       expect(repository.findById).toHaveBeenCalledWith('user-uuid');
-      expect(bcrypt.compare).toHaveBeenCalledWith('incoming_refresh_token', 'stored_refresh_hash');
-      expect(repository.updateRefreshToken).toHaveBeenCalledWith('user-uuid', 'new_refresh_hash');
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        'incoming_refresh_token',
+        'stored_refresh_hash',
+      );
+      expect(repository.updateRefreshToken).toHaveBeenCalledWith(
+        'user-uuid',
+        'new_refresh_hash',
+      );
       expect(result).toEqual({
         accessToken: 'new_access_token',
         refreshToken: 'new_refresh_token',
@@ -185,7 +200,10 @@ describe('AuthService', () => {
         service.refresh('user-uuid', 'stale_refresh_token'),
       ).rejects.toThrow(ForbiddenException);
 
-      expect(repository.updateRefreshToken).toHaveBeenCalledWith('user-uuid', null);
+      expect(repository.updateRefreshToken).toHaveBeenCalledWith(
+        'user-uuid',
+        null,
+      );
     });
   });
 
@@ -195,7 +213,10 @@ describe('AuthService', () => {
 
       await service.logout('user-uuid');
 
-      expect(repository.updateRefreshToken).toHaveBeenCalledWith('user-uuid', null);
+      expect(repository.updateRefreshToken).toHaveBeenCalledWith(
+        'user-uuid',
+        null,
+      );
     });
   });
 });

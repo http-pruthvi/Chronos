@@ -25,13 +25,16 @@ export class DepartmentsService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'DEPARTMENT_CREATED',
-        entityType: 'Department',
-        entityId: department.id,
-        afterState: department,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'DEPARTMENT_CREATED',
+          entityType: 'Department',
+          entityId: department.id,
+          afterState: department,
+        },
+        tx,
+      );
 
       return department;
     });
@@ -57,21 +60,25 @@ export class DepartmentsService {
         where: { id },
         data: {
           name: dto.name,
-          headEmployeeId: dto.headEmployeeId === undefined ? undefined : dto.headEmployeeId,
+          headEmployeeId:
+            dto.headEmployeeId === undefined ? undefined : dto.headEmployeeId,
         },
         include: {
           headEmployee: true,
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'DEPARTMENT_UPDATED',
-        entityType: 'Department',
-        entityId: id,
-        beforeState,
-        afterState: updatedDepartment,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'DEPARTMENT_UPDATED',
+          entityType: 'Department',
+          entityId: id,
+          beforeState,
+          afterState: updatedDepartment,
+        },
+        tx,
+      );
 
       return updatedDepartment;
     });
@@ -88,14 +95,17 @@ export class DepartmentsService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'DEPARTMENT_DELETED',
-        entityType: 'Department',
-        entityId: id,
-        beforeState,
-        afterState: { deleted: true },
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'DEPARTMENT_DELETED',
+          entityType: 'Department',
+          entityId: id,
+          beforeState,
+          afterState: { deleted: true },
+        },
+        tx,
+      );
 
       return { success: true, message: 'Department successfully deleted' };
     });

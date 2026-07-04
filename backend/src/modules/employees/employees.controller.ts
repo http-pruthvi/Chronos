@@ -1,5 +1,23 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards, HttpStatus, HttpCode } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -25,13 +43,18 @@ export class EmployeesController {
     @Body() createEmployeeDto: CreateEmployeeDto,
     @CurrentUser('id') actorUserId: string,
   ) {
-    const data = await this.employeesService.create(createEmployeeDto, actorUserId);
+    const data = await this.employeesService.create(
+      createEmployeeDto,
+      actorUserId,
+    );
     return { data };
   }
 
   @Get()
   @Permissions('employee:read')
-  @ApiOperation({ summary: 'Get list of employees with filters and pagination' })
+  @ApiOperation({
+    summary: 'Get list of employees with filters and pagination',
+  })
   @ApiQuery({ name: 'departmentId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
@@ -58,7 +81,10 @@ export class EmployeesController {
   @Permissions('employee:read')
   @ApiOperation({ summary: 'Get an employee profile by ID' })
   @ApiResponse({ status: HttpStatus.OK, type: EmployeeResponseDto })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Employee not found' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Employee not found',
+  })
   async findOne(@Param('id') id: string) {
     const data = await this.employeesService.findOne(id);
     return { data };
@@ -68,21 +94,34 @@ export class EmployeesController {
   @Permissions('employee:update')
   @ApiOperation({ summary: 'Update employee profile details (HR, ADMIN)' })
   @ApiResponse({ status: HttpStatus.OK, type: EmployeeResponseDto })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Employee not found' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Employee not found',
+  })
   async update(
     @Param('id') id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
     @CurrentUser('id') actorUserId: string,
   ) {
-    const data = await this.employeesService.update(id, updateEmployeeDto, actorUserId);
+    const data = await this.employeesService.update(
+      id,
+      updateEmployeeDto,
+      actorUserId,
+    );
     return { data };
   }
 
   @Delete(':id')
   @Permissions('employee:delete')
   @ApiOperation({ summary: 'Soft delete/offboard employee profile (ADMIN)' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Employee successfully deleted' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Employee not found' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Employee successfully deleted',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Employee not found',
+  })
   async remove(
     @Param('id') id: string,
     @CurrentUser('id') actorUserId: string,

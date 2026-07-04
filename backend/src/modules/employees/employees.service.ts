@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { EmployeesRepository } from './employees.repository';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -20,7 +24,9 @@ export class EmployeesService {
       where: { email: dto.email, deletedAt: null },
     });
     if (existingEmployeeByEmail) {
-      throw new BadRequestException('An employee with this email already exists');
+      throw new BadRequestException(
+        'An employee with this email already exists',
+      );
     }
 
     // 2. Check if employee code exists
@@ -28,7 +34,9 @@ export class EmployeesService {
       where: { employeeCode: dto.employeeCode, deletedAt: null },
     });
     if (existingEmployeeByCode) {
-      throw new BadRequestException(`Employee code "${dto.employeeCode}" is already assigned`);
+      throw new BadRequestException(
+        `Employee code "${dto.employeeCode}" is already assigned`,
+      );
     }
 
     // 3. Resolve role in DB
@@ -44,7 +52,9 @@ export class EmployeesService {
     if (dto.managerId) {
       const manager = await this.employeesRepository.findById(dto.managerId);
       if (!manager) {
-        throw new NotFoundException(`Manager with ID "${dto.managerId}" not found`);
+        throw new NotFoundException(
+          `Manager with ID "${dto.managerId}" not found`,
+        );
       }
     }
 
@@ -84,13 +94,16 @@ export class EmployeesService {
       });
 
       // 3. Write Audit Log
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'EMPLOYEE_CREATED',
-        entityType: 'Employee',
-        entityId: employee.id,
-        afterState: employee,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'EMPLOYEE_CREATED',
+          entityType: 'Employee',
+          entityId: employee.id,
+          afterState: employee,
+        },
+        tx,
+      );
 
       return employee;
     });
@@ -142,7 +155,9 @@ export class EmployeesService {
         where: { email: dto.email, deletedAt: null, NOT: { id } },
       });
       if (emailConflict) {
-        throw new BadRequestException('Work email is already in use by another employee');
+        throw new BadRequestException(
+          'Work email is already in use by another employee',
+        );
       }
     }
 
@@ -171,12 +186,19 @@ export class EmployeesService {
           firstName: dto.firstName,
           lastName: dto.lastName,
           phone: dto.phone,
-          department: dto.departmentId ? { connect: { id: dto.departmentId } } : undefined,
-          designation: dto.designation,
-          manager: dto.managerId !== undefined 
-            ? (dto.managerId ? { connect: { id: dto.managerId } } : { disconnect: true }) 
+          department: dto.departmentId
+            ? { connect: { id: dto.departmentId } }
             : undefined,
-          dateOfJoining: dto.dateOfJoining ? new Date(dto.dateOfJoining) : undefined,
+          designation: dto.designation,
+          manager:
+            dto.managerId !== undefined
+              ? dto.managerId
+                ? { connect: { id: dto.managerId } }
+                : { disconnect: true }
+              : undefined,
+          dateOfJoining: dto.dateOfJoining
+            ? new Date(dto.dateOfJoining)
+            : undefined,
           dateOfExit: dto.dateOfExit ? new Date(dto.dateOfExit) : undefined,
           status: dto.status,
         },
@@ -194,20 +216,23 @@ export class EmployeesService {
             where: { employeeId: id },
             data: {
               email: dto.email || undefined,
-              isActive: dto.status ? (dto.status === 'ACTIVE') : undefined,
+              isActive: dto.status ? dto.status === 'ACTIVE' : undefined,
             },
           });
         }
       }
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'EMPLOYEE_UPDATED',
-        entityType: 'Employee',
-        entityId: id,
-        beforeState,
-        afterState: updatedEmployee,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'EMPLOYEE_UPDATED',
+          entityType: 'Employee',
+          entityId: id,
+          beforeState,
+          afterState: updatedEmployee,
+        },
+        tx,
+      );
 
       return updatedEmployee;
     });
@@ -231,16 +256,22 @@ export class EmployeesService {
       });
 
       // Write Audit Log
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'EMPLOYEE_DELETED',
-        entityType: 'Employee',
-        entityId: id,
-        beforeState,
-        afterState: { deleted: true },
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'EMPLOYEE_DELETED',
+          entityType: 'Employee',
+          entityId: id,
+          beforeState,
+          afterState: { deleted: true },
+        },
+        tx,
+      );
 
-      return { success: true, message: 'Employee successfully offboarded and deleted' };
+      return {
+        success: true,
+        message: 'Employee successfully offboarded and deleted',
+      };
     });
   }
 

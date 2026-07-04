@@ -50,7 +50,8 @@ export class DepartmentsRepository {
       where: { id },
       data: {
         name: dto.name,
-        headEmployeeId: dto.headEmployeeId === undefined ? undefined : dto.headEmployeeId,
+        headEmployeeId:
+          dto.headEmployeeId === undefined ? undefined : dto.headEmployeeId,
       },
       include: {
         headEmployee: true,

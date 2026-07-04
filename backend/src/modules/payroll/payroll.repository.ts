@@ -37,7 +37,12 @@ export class PayrollRepository {
     });
   }
 
-  async updateRunStatus(id: string, status: PayrollRunStatus, processedAt?: Date | null, tx?: Prisma.TransactionClient) {
+  async updateRunStatus(
+    id: string,
+    status: PayrollRunStatus,
+    processedAt?: Date | null,
+    tx?: Prisma.TransactionClient,
+  ) {
     const client = tx || this.prisma;
     return client.payrollRun.update({
       where: { id },
@@ -48,7 +53,10 @@ export class PayrollRepository {
     });
   }
 
-  async deletePayslipsByRunId(payrollRunId: string, tx?: Prisma.TransactionClient) {
+  async deletePayslipsByRunId(
+    payrollRunId: string,
+    tx?: Prisma.TransactionClient,
+  ) {
     const client = tx || this.prisma;
     return client.payslip.deleteMany({
       where: { payrollRunId },
@@ -103,10 +111,7 @@ export class PayrollRepository {
 
   async findAllRuns() {
     return this.prisma.payrollRun.findMany({
-      orderBy: [
-        { year: 'desc' },
-        { month: 'desc' },
-      ],
+      orderBy: [{ year: 'desc' }, { month: 'desc' }],
     });
   }
 }

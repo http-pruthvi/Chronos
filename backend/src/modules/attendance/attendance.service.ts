@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AttendanceRepository } from './attendance.repository';
 import { AttendanceStatus } from '@prisma/client';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
@@ -26,7 +30,10 @@ export class AttendanceService {
     }
 
     // 2. Check if already checked in today
-    const existingRecord = await this.attendanceRepository.findCurrentDayRecord(employeeId, today);
+    const existingRecord = await this.attendanceRepository.findCurrentDayRecord(
+      employeeId,
+      today,
+    );
     if (existingRecord && existingRecord.checkIn) {
       throw new BadRequestException('You have already checked in today');
     }
@@ -35,7 +42,7 @@ export class AttendanceService {
     // We check local hours and minutes of the check-in event
     const checkInHour = now.getHours();
     const checkInMinute = now.getMinutes();
-    
+
     let status: AttendanceStatus = AttendanceStatus.PRESENT;
     if (checkInHour > 9 || (checkInHour === 9 && checkInMinute > 15)) {
       status = AttendanceStatus.LATE;
@@ -69,13 +76,16 @@ export class AttendanceService {
         });
       }
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'ATTENDANCE_CHECKIN',
-        entityType: 'Attendance',
-        entityId: record.id,
-        afterState: record,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'ATTENDANCE_CHECKIN',
+          entityType: 'Attendance',
+          entityId: record.id,
+          afterState: record,
+        },
+        tx,
+      );
 
       return record;
     });
@@ -86,9 +96,14 @@ export class AttendanceService {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 
-    const record = await this.attendanceRepository.findCurrentDayRecord(employeeId, today);
+    const record = await this.attendanceRepository.findCurrentDayRecord(
+      employeeId,
+      today,
+    );
     if (!record || !record.checkIn) {
-      throw new BadRequestException('Cannot check out without checking in first');
+      throw new BadRequestException(
+        'Cannot check out without checking in first',
+      );
     }
 
     if (record.checkOut) {
@@ -118,14 +133,17 @@ export class AttendanceService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'ATTENDANCE_CHECKOUT',
-        entityType: 'Attendance',
-        entityId: record.id,
-        beforeState: record,
-        afterState: updatedRecord,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'ATTENDANCE_CHECKOUT',
+          entityType: 'Attendance',
+          entityId: record.id,
+          beforeState: record,
+          afterState: updatedRecord,
+        },
+        tx,
+      );
 
       return updatedRecord;
     });
@@ -133,15 +151,19 @@ export class AttendanceService {
 
   async getMyAttendance(employeeId: string, month?: number, year?: number) {
     const now = new Date();
-    const queryMonth = month || (now.getMonth() + 1);
+    const queryMonth = month || now.getMonth() + 1;
     const queryYear = year || now.getFullYear();
 
-    return this.attendanceRepository.findByEmployeeId(employeeId, queryMonth, queryYear);
+    return this.attendanceRepository.findByEmployeeId(
+      employeeId,
+      queryMonth,
+      queryYear,
+    );
   }
 
   async getTeamAttendance(managerId: string, month?: number, year?: number) {
     const now = new Date();
-    const queryMonth = month || (now.getMonth() + 1);
+    const queryMonth = month || now.getMonth() + 1;
     const queryYear = year || now.getFullYear();
 
     // Verify manager exists
@@ -152,12 +174,20 @@ export class AttendanceService {
       throw new NotFoundException(`Manager with ID "${managerId}" not found`);
     }
 
-    return this.attendanceRepository.findByManagerId(managerId, queryMonth, queryYear);
+    return this.attendanceRepository.findByManagerId(
+      managerId,
+      queryMonth,
+      queryYear,
+    );
   }
 
-  async getEmployeeAttendance(employeeId: string, month?: number, year?: number) {
+  async getEmployeeAttendance(
+    employeeId: string,
+    month?: number,
+    year?: number,
+  ) {
     const now = new Date();
-    const queryMonth = month || (now.getMonth() + 1);
+    const queryMonth = month || now.getMonth() + 1;
     const queryYear = year || now.getFullYear();
 
     // Verify employee exists
@@ -168,6 +198,10 @@ export class AttendanceService {
       throw new NotFoundException(`Employee with ID "${employeeId}" not found`);
     }
 
-    return this.attendanceRepository.findByEmployeeId(employeeId, queryMonth, queryYear);
+    return this.attendanceRepository.findByEmployeeId(
+      employeeId,
+      queryMonth,
+      queryYear,
+    );
   }
 }

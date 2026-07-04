@@ -3,13 +3,16 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class EmployeesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateEmployeeDto, defaultPasswordHash: string, roleId: string) {
+  async create(
+    dto: CreateEmployeeDto,
+    defaultPasswordHash: string,
+    roleId: string,
+  ) {
     return this.prisma.$transaction(async (tx) => {
       // 1. Create Employee
       const employee = await tx.employee.create({
@@ -113,12 +116,19 @@ export class EmployeesRepository {
       firstName: dto.firstName,
       lastName: dto.lastName,
       phone: dto.phone,
-      department: dto.departmentId ? { connect: { id: dto.departmentId } } : undefined,
-      designation: dto.designation,
-      manager: dto.managerId !== undefined 
-        ? (dto.managerId ? { connect: { id: dto.managerId } } : { disconnect: true }) 
+      department: dto.departmentId
+        ? { connect: { id: dto.departmentId } }
         : undefined,
-      dateOfJoining: dto.dateOfJoining ? new Date(dto.dateOfJoining) : undefined,
+      designation: dto.designation,
+      manager:
+        dto.managerId !== undefined
+          ? dto.managerId
+            ? { connect: { id: dto.managerId } }
+            : { disconnect: true }
+          : undefined,
+      dateOfJoining: dto.dateOfJoining
+        ? new Date(dto.dateOfJoining)
+        : undefined,
       dateOfExit: dto.dateOfExit ? new Date(dto.dateOfExit) : undefined,
       status: dto.status,
     };
@@ -141,7 +151,7 @@ export class EmployeesRepository {
             where: { employeeId: id },
             data: {
               email: dto.email || undefined,
-              isActive: dto.status ? (dto.status === 'ACTIVE') : undefined,
+              isActive: dto.status ? dto.status === 'ACTIVE' : undefined,
             },
           });
         }

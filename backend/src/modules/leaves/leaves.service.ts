@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { LeavesRepository } from './leaves.repository';
 import { ApplyLeaveDto } from './dto/apply-leave.dto';
 import { LeaveRequestStatus, Prisma } from '@prisma/client';
@@ -21,13 +26,20 @@ export class LeavesService {
 
   async getLeaveBalances(employeeId: string, year?: number) {
     const queryYear = year || new Date().getFullYear();
-    return this.leavesRepository.findBalancesByEmployeeId(employeeId, queryYear);
+    return this.leavesRepository.findBalancesByEmployeeId(
+      employeeId,
+      queryYear,
+    );
   }
 
-  async applyLeave(dto: ApplyLeaveDto, employeeId: string, actorUserId: string) {
+  async applyLeave(
+    dto: ApplyLeaveDto,
+    employeeId: string,
+    actorUserId: string,
+  ) {
     const start = new Date(dto.startDate);
     const end = new Date(dto.endDate);
-    
+
     start.setUTCHours(0, 0, 0, 0);
     end.setUTCHours(0, 0, 0, 0);
 
@@ -40,9 +52,15 @@ export class LeavesService {
 
     const year = start.getFullYear();
 
-    const balance = await this.leavesRepository.findBalance(employeeId, dto.leaveTypeId, year);
+    const balance = await this.leavesRepository.findBalance(
+      employeeId,
+      dto.leaveTypeId,
+      year,
+    );
     if (!balance) {
-      throw new BadRequestException('No leave quota allocated for this type in the requested year');
+      throw new BadRequestException(
+        'No leave quota allocated for this type in the requested year',
+      );
     }
 
     const allocated = Number(balance.allocated);
@@ -57,9 +75,15 @@ export class LeavesService {
       });
     }
 
-    const conflicts = await this.leavesRepository.findConflictingRequests(employeeId, start, end);
+    const conflicts = await this.leavesRepository.findConflictingRequests(
+      employeeId,
+      start,
+      end,
+    );
     if (conflicts.length > 0) {
-      throw new BadRequestException('You already have a pending or approved leave request during this period');
+      throw new BadRequestException(
+        'You already have a pending or approved leave request during this period',
+      );
     }
 
     const request = await this.prisma.$transaction(async (tx) => {
@@ -79,13 +103,16 @@ export class LeavesService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'LEAVE_REQUESTED',
-        entityType: 'LeaveRequest',
-        entityId: req.id,
-        afterState: req,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'LEAVE_REQUESTED',
+          entityType: 'LeaveRequest',
+          entityId: req.id,
+          afterState: req,
+        },
+        tx,
+      );
 
       return req;
     });
@@ -118,20 +145,29 @@ export class LeavesService {
     if (isAdmin || isHR) {
       return this.leavesRepository.findPendingRequestsAll();
     } else if (roleName === 'MANAGER') {
-      return this.leavesRepository.findPendingRequestsForReports(approverEmployeeId);
+      return this.leavesRepository.findPendingRequestsForReports(
+        approverEmployeeId,
+      );
     }
 
     return [];
   }
 
-  async approve(id: string, approverEmployeeId: string, roleName: string, actorUserId: string) {
+  async approve(
+    id: string,
+    approverEmployeeId: string,
+    roleName: string,
+    actorUserId: string,
+  ) {
     const request = await this.leavesRepository.findRequestById(id);
     if (!request) {
       throw new NotFoundException(`Leave request with ID "${id}" not found`);
     }
 
     if (request.status !== LeaveRequestStatus.PENDING) {
-      throw new BadRequestException('Only pending leave requests can be approved');
+      throw new BadRequestException(
+        'Only pending leave requests can be approved',
+      );
     }
 
     const isHR = roleName === 'HR';
@@ -139,13 +175,19 @@ export class LeavesService {
     const isDirectManager = request.employee.managerId === approverEmployeeId;
 
     if (!isAdmin && !isHR && !isDirectManager) {
-      throw new ForbiddenException('You do not have permission to decide on this leave request');
+      throw new ForbiddenException(
+        'You do not have permission to decide on this leave request',
+      );
     }
 
     const year = new Date(request.startDate).getFullYear();
     const days = Number(request.days);
 
-    const balance = await this.leavesRepository.findBalance(request.employeeId, request.leaveTypeId, year);
+    const balance = await this.leavesRepository.findBalance(
+      request.employeeId,
+      request.leaveTypeId,
+      year,
+    );
     if (!balance) {
       throw new BadRequestException('No leave balance allocated for this year');
     }
@@ -155,7 +197,9 @@ export class LeavesService {
     const available = allocated - used;
 
     if (days > available) {
-      throw new BadRequestException(`Insufficient leave balance remaining to approve. Available: ${available}, Requested: ${days}`);
+      throw new BadRequestException(
+        `Insufficient leave balance remaining to approve. Available: ${available}, Requested: ${days}`,
+      );
     }
 
     const approvedRequest = await this.prisma.$transaction(async (tx) => {
@@ -188,14 +232,17 @@ export class LeavesService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'LEAVE_APPROVED',
-        entityType: 'LeaveRequest',
-        entityId: id,
-        beforeState: request,
-        afterState: req,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'LEAVE_APPROVED',
+          entityType: 'LeaveRequest',
+          entityId: id,
+          beforeState: request,
+          afterState: req,
+        },
+        tx,
+      );
 
       return req;
     });
@@ -211,21 +258,28 @@ export class LeavesService {
       await this.notificationsService.create(
         employeeUser.id,
         'Leave Request Approved',
-        `Your request for ${days} days of ${request.leaveType.name} starting ${request.startDate.toISOString().slice(0,10)} was approved by ${approverName}.`,
+        `Your request for ${days} days of ${request.leaveType.name} starting ${request.startDate.toISOString().slice(0, 10)} was approved by ${approverName}.`,
       );
     }
 
     return approvedRequest;
   }
 
-  async reject(id: string, approverEmployeeId: string, roleName: string, actorUserId: string) {
+  async reject(
+    id: string,
+    approverEmployeeId: string,
+    roleName: string,
+    actorUserId: string,
+  ) {
     const request = await this.leavesRepository.findRequestById(id);
     if (!request) {
       throw new NotFoundException(`Leave request with ID "${id}" not found`);
     }
 
     if (request.status !== LeaveRequestStatus.PENDING) {
-      throw new BadRequestException('Only pending leave requests can be rejected');
+      throw new BadRequestException(
+        'Only pending leave requests can be rejected',
+      );
     }
 
     const isHR = roleName === 'HR';
@@ -233,7 +287,9 @@ export class LeavesService {
     const isDirectManager = request.employee.managerId === approverEmployeeId;
 
     if (!isAdmin && !isHR && !isDirectManager) {
-      throw new ForbiddenException('You do not have permission to decide on this leave request');
+      throw new ForbiddenException(
+        'You do not have permission to decide on this leave request',
+      );
     }
 
     const rejectedRequest = await this.prisma.$transaction(async (tx) => {
@@ -251,14 +307,17 @@ export class LeavesService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'LEAVE_REJECTED',
-        entityType: 'LeaveRequest',
-        entityId: id,
-        beforeState: request,
-        afterState: req,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'LEAVE_REJECTED',
+          entityType: 'LeaveRequest',
+          entityId: id,
+          beforeState: request,
+          afterState: req,
+        },
+        tx,
+      );
 
       return req;
     });
@@ -274,7 +333,7 @@ export class LeavesService {
       await this.notificationsService.create(
         employeeUser.id,
         'Leave Request Rejected',
-        `Your request for ${request.days} days of ${request.leaveType.name} starting ${request.startDate.toISOString().slice(0,10)} was rejected by ${approverName}.`,
+        `Your request for ${request.days.toString()} days of ${request.leaveType.name} starting ${request.startDate.toISOString().slice(0, 10)} was rejected by ${approverName}.`,
       );
     }
 
@@ -288,11 +347,15 @@ export class LeavesService {
     }
 
     if (request.employeeId !== employeeId) {
-      throw new ForbiddenException('You can only cancel your own leave requests');
+      throw new ForbiddenException(
+        'You can only cancel your own leave requests',
+      );
     }
 
     if (request.status !== LeaveRequestStatus.PENDING) {
-      throw new BadRequestException('Only pending leave requests can be cancelled');
+      throw new BadRequestException(
+        'Only pending leave requests can be cancelled',
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -306,14 +369,17 @@ export class LeavesService {
         },
       });
 
-      await this.auditLogsService.log({
-        actorUserId,
-        action: 'LEAVE_CANCELLED',
-        entityType: 'LeaveRequest',
-        entityId: id,
-        beforeState: request,
-        afterState: cancelledRequest,
-      }, tx);
+      await this.auditLogsService.log(
+        {
+          actorUserId,
+          action: 'LEAVE_CANCELLED',
+          entityType: 'LeaveRequest',
+          entityId: id,
+          beforeState: request,
+          afterState: cancelledRequest,
+        },
+        tx,
+      );
 
       return cancelledRequest;
     });

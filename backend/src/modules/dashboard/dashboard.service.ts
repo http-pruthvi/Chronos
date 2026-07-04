@@ -12,7 +12,13 @@ export class DashboardService {
     const month = new Date().getMonth() + 1;
     const year = new Date().getFullYear();
 
-    const [totalEmployees, headcountByDept, attendancePercent, pendingLeaves, payrollStatus] = await Promise.all([
+    const [
+      totalEmployees,
+      headcountByDept,
+      attendancePercent,
+      pendingLeaves,
+      payrollStatus,
+    ] = await Promise.all([
       this.dashboardRepository.getActiveEmployeeCount(),
       this.dashboardRepository.getHeadcountByDepartment(),
       this.dashboardRepository.getTodayAttendancePercent(today),
@@ -35,14 +41,27 @@ export class DashboardService {
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const endOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
 
-    const [teamSize, attendanceToday, pendingLeaves, leaveCalendar] = await Promise.all([
-      this.dashboardRepository.getTeamSize(managerId),
-      this.dashboardRepository.getTeamAttendanceToday(managerId, today),
-      this.dashboardRepository.getTeamPendingLeaveCount(managerId),
-      this.dashboardRepository.getTeamLeaveCalendar(managerId, startOfMonth, endOfMonth),
-    ]);
+    const [teamSize, attendanceToday, pendingLeaves, leaveCalendar] =
+      await Promise.all([
+        this.dashboardRepository.getTeamSize(managerId),
+        this.dashboardRepository.getTeamAttendanceToday(managerId, today),
+        this.dashboardRepository.getTeamPendingLeaveCount(managerId),
+        this.dashboardRepository.getTeamLeaveCalendar(
+          managerId,
+          startOfMonth,
+          endOfMonth,
+        ),
+      ]);
 
     return {
       teamSize,
@@ -71,12 +90,24 @@ export class DashboardService {
     const now = new Date();
     const year = now.getFullYear();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const endOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
 
     const [leaveBalances, payslips, attendanceStats] = await Promise.all([
       this.dashboardRepository.getLeaveBalances(employeeId, year),
       this.dashboardRepository.getLastPayslips(employeeId, 3),
-      this.dashboardRepository.getMonthlyAttendanceStats(employeeId, startOfMonth, endOfMonth),
+      this.dashboardRepository.getMonthlyAttendanceStats(
+        employeeId,
+        startOfMonth,
+        endOfMonth,
+      ),
     ]);
 
     return {
