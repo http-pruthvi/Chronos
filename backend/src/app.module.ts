@@ -9,6 +9,8 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { LeavesModule } from './modules/leaves/leaves.module';
+import { PayrollModule } from './modules/payroll/payroll.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { LeavesModule } from './modules/leaves/leaves.module';
     AuditLogsModule,
     AttendanceModule,
     LeavesModule,
+    PayrollModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
