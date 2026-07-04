@@ -66,6 +66,27 @@ export class AttendanceController {
     return { data };
   }
 
+  @Get('today')
+  @Permissions('attendance:checkin')
+  @ApiOperation({
+    summary: "Get today's attendance record for the current user",
+  })
+  @ApiResponse({ status: HttpStatus.OK, type: AttendanceResponseDto })
+  async getToday(@CurrentUser('employeeId') employeeId: string | null) {
+    if (!employeeId) {
+      throw new BadRequestException(
+        'This account is not linked to an employee profile.',
+      );
+    }
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const record = await this.attendanceService.getTodayRecord(
+      employeeId,
+      today,
+    );
+    return record;
+  }
+
   @Get('me')
   @Permissions('attendance:read')
   @ApiOperation({ summary: 'Get own attendance log for a specific month/year' })

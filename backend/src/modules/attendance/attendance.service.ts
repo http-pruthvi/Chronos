@@ -16,6 +16,10 @@ export class AttendanceService {
     private readonly prisma: PrismaService,
   ) {}
 
+  async getTodayRecord(employeeId: string, date: Date) {
+    return this.attendanceRepository.findCurrentDayRecord(employeeId, date);
+  }
+
   async checkIn(employeeId: string, actorUserId: string) {
     const now = new Date();
     const today = new Date();

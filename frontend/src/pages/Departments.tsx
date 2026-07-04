@@ -79,7 +79,7 @@ export const Departments: React.FC = () => {
 
     try {
       if (isEdit && currentId) {
-        await api.put(`/api/v1/departments/${currentId}`, {
+        await api.patch(`/api/v1/departments/${currentId}`, {
           name,
           code,
           headEmployeeId: headEmployeeId || null,

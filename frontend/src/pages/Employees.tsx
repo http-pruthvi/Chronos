@@ -105,7 +105,7 @@ export const Employees: React.FC = () => {
 
     try {
       if (isEdit && currentId) {
-        await api.put(`/api/v1/employees/${currentId}`, {
+        await api.patch(`/api/v1/employees/${currentId}`, {
           firstName,
           lastName,
           designation,
