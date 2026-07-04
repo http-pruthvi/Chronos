@@ -13,6 +13,8 @@ import Departments from './pages/Departments';
 import Payroll from './pages/Payroll';
 import AIAssistant from './pages/AIAssistant';
 
+import { ToastProvider } from './context/ToastContext';
+
 // Gated Route wrapper for Authenticated users
 const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRoles?: string[]; requiredPermission?: string }> = ({ 
   children, 
@@ -46,9 +48,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRoles?: stri
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <NotificationsProvider>
-        <Router>
+    <ToastProvider>
+      <AuthProvider>
+        <NotificationsProvider>
+          <Router>
           <Routes>
             {/* Public Access */}
             <Route path="/login" element={<Login />} />
@@ -129,9 +132,10 @@ export const App: React.FC = () => {
             {/* Fallback Catch-all Redirect */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </Router>
-      </NotificationsProvider>
-    </AuthProvider>
+          </Router>
+        </NotificationsProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 };
 

@@ -12,6 +12,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
@@ -26,6 +27,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login user and get access and refresh tokens' })
   @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })

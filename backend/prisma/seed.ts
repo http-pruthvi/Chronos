@@ -558,6 +558,205 @@ async function main() {
     }
   }
 
+  // 10. Seed Leave Requests & Deduct Balances
+  console.log('Seeding leave requests...');
+  const casualLeaveType = leaveTypes['Casual Leave'];
+  const sickLeaveType = leaveTypes['Sick Leave'];
+
+  // Leave Request 1: Approved
+  await prisma.leaveRequest.create({
+    data: {
+      employeeId: empDeveloper.id,
+      leaveTypeId: casualLeaveType.id,
+      startDate: new Date('2026-06-08'),
+      endDate: new Date('2026-06-10'),
+      days: 3,
+      reason: 'Family event check',
+      status: 'APPROVED',
+      approverId: empManager.id,
+      decidedAt: new Date('2026-06-05'),
+    },
+  });
+  await prisma.leaveBalance.updateMany({
+    where: {
+      employeeId: empDeveloper.id,
+      leaveTypeId: casualLeaveType.id,
+      year: 2026,
+    },
+    data: { used: { increment: 3 } },
+  });
+
+  // Leave Request 2: Approved
+  await prisma.leaveRequest.create({
+    data: {
+      employeeId: empQA.id,
+      leaveTypeId: sickLeaveType.id,
+      startDate: new Date('2026-06-15'),
+      endDate: new Date('2026-06-16'),
+      days: 2,
+      reason: 'Fever recovery',
+      status: 'APPROVED',
+      approverId: empManager.id,
+      decidedAt: new Date('2026-06-14'),
+    },
+  });
+  await prisma.leaveBalance.updateMany({
+    where: {
+      employeeId: empQA.id,
+      leaveTypeId: sickLeaveType.id,
+      year: 2026,
+    },
+    data: { used: { increment: 2 } },
+  });
+
+  // Leave Request 3: Pending
+  await prisma.leaveRequest.create({
+    data: {
+      employeeId: empDevOps.id,
+      leaveTypeId: casualLeaveType.id,
+      startDate: new Date('2026-07-10'),
+      endDate: new Date('2026-07-12'),
+      days: 3,
+      reason: 'Personal travel plans',
+      status: 'PENDING',
+    },
+  });
+
+  // 11. Seed Attendance logs for June 2026
+  console.log('Seeding attendance logs...');
+  const workdays: Date[] = [];
+  const startJune = new Date('2026-06-01');
+  const endJune = new Date('2026-06-30');
+
+  for (let d = new Date(startJune); d <= endJune; d.setDate(d.getDate() + 1)) {
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      // Monday-Friday
+      workdays.push(new Date(d));
+    }
+  }
+
+  for (const emp of allEmployees) {
+    for (const date of workdays) {
+      // 95% attendance rate
+      if (Math.random() > 0.05) {
+        // Late probability 15%
+        const isLate = Math.random() < 0.15;
+        const checkInHour = isLate ? 9 : 8;
+        const checkInMin = isLate
+          ? Math.floor(Math.random() * 25) + 16
+          : Math.floor(Math.random() * 59); // late is post 09:15
+
+        const checkIn = new Date(date);
+        checkIn.setHours(checkInHour, checkInMin, 0);
+
+        const checkOut = new Date(date);
+        checkOut.setHours(18, Math.floor(Math.random() * 30), 0); // 18:00 to 18:30
+
+        const workedMinutes = Math.floor(
+          (checkOut.getTime() - checkIn.getTime()) / 60000,
+        );
+        const status =
+          checkInHour === 9 && checkInMin > 15 ? 'LATE' : 'PRESENT';
+
+        await prisma.attendance.create({
+          data: {
+            employeeId: emp.id,
+            date,
+            checkIn,
+            checkOut,
+            workedMinutes,
+            status,
+          },
+        });
+      }
+    }
+  }
+
+  // 12. Seed Historical Payroll Runs (March, April, May 2026)
+  console.log('Seeding historical payroll runs...');
+  const runsData = [
+    { month: 3, year: 2026, processedAt: new Date('2026-03-31') },
+    { month: 4, year: 2026, processedAt: new Date('2026-04-30') },
+    { month: 5, year: 2026, processedAt: new Date('2026-05-31') },
+  ];
+
+  for (const run of runsData) {
+    const pr = await prisma.payrollRun.create({
+      data: {
+        month: run.month,
+        year: run.year,
+        status: 'PAID',
+        processedAt: run.processedAt,
+      },
+    });
+
+    for (const emp of allEmployees) {
+      const sal = salaryMap[emp.designation] || {
+        basic: 30000,
+        hra: 12000,
+        allowance: 5000,
+        pf: 3600,
+        tds: 2000,
+      };
+
+      const grossPay = sal.basic + sal.hra + sal.allowance;
+      const totalDeductions = sal.pf + sal.tds + 200;
+      const netPay = grossPay - totalDeductions;
+
+      // JSON breakdown for payslip
+      const lineItems = [
+        {
+          name: 'Basic Salary',
+          type: 'EARNING',
+          originalValue: sal.basic,
+          proratedValue: sal.basic,
+        },
+        {
+          name: 'House Rent Allowance (HRA)',
+          type: 'EARNING',
+          originalValue: sal.hra,
+          proratedValue: sal.hra,
+        },
+        {
+          name: 'Special Allowance',
+          type: 'EARNING',
+          originalValue: sal.allowance,
+          proratedValue: sal.allowance,
+        },
+        {
+          name: 'Provident Fund (PF)',
+          type: 'DEDUCTION',
+          originalValue: sal.pf,
+          proratedValue: sal.pf,
+        },
+        {
+          name: 'Tax Deducted at Source (TDS)',
+          type: 'DEDUCTION',
+          originalValue: sal.tds,
+          proratedValue: sal.tds,
+        },
+        {
+          name: 'Professional Tax',
+          type: 'DEDUCTION',
+          originalValue: 200,
+          proratedValue: 200,
+        },
+      ];
+
+      await prisma.payslip.create({
+        data: {
+          payrollRunId: pr.id,
+          employeeId: emp.id,
+          grossPay,
+          totalDeductions,
+          netPay,
+          lineItems,
+        },
+      });
+    }
+  }
+
   console.log('Seeding complete successfully.');
 }
 
