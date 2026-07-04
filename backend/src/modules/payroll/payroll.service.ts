@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PayrollRepository } from './payroll.repository';
 import { CreatePayrollRunDto } from './dto/create-payroll-run.dto';
-import { PayrollRunStatus, SalaryComponentType, LeaveRequestStatus } from '@prisma/client';
+import { PayrollRunStatus, SalaryComponentType, LeaveRequestStatus, Prisma } from '@prisma/client';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';

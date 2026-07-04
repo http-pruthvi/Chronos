@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { LeavesRepository } from './leaves.repository';
 import { ApplyLeaveDto } from './dto/apply-leave.dto';
-import { LeaveRequestStatus } from '@prisma/client';
+import { LeaveRequestStatus, Prisma } from '@prisma/client';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';
