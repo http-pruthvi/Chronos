@@ -3,6 +3,7 @@ import { PayrollRepository } from './payroll.repository';
 import { CreatePayrollRunDto } from './dto/create-payroll-run.dto';
 import { PayrollRunStatus, SalaryComponentType, LeaveRequestStatus } from '@prisma/client';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class PayrollService {
   constructor(
     private readonly payrollRepository: PayrollRepository,
     private readonly auditLogsService: AuditLogsService,
+    private readonly notificationsService: NotificationsService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -52,12 +54,10 @@ export class PayrollService {
 
     const { month, year } = run;
     
-    // Dates for the month boundary
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59, 999);
     const totalDaysInMonth = new Date(year, month, 0).getDate();
 
-    // Fetch all active employees in this month
     const employees = await this.prisma.employee.findMany({
       where: {
         deletedAt: null,
@@ -76,27 +76,24 @@ export class PayrollService {
       },
     });
 
-    return this.prisma.$transaction(async (tx) => {
-      // 1. Clear any existing payslips for this run
+    const processedPayslips = await this.prisma.$transaction(async (tx) => {
       await tx.payslip.deleteMany({
         where: { payrollRunId: id },
       });
 
-      // 2. Loop and generate payslip for each employee
+      const payslipsData = [];
+
       for (const emp of employees) {
-        // Calculate active days in month (handling mid-month joiner / exit)
         let activeDays = totalDaysInMonth;
         const joinDate = new Date(emp.dateOfJoining);
         
         if (joinDate.getTime() > startDate.getTime()) {
-          // Joined mid-month
           activeDays = totalDaysInMonth - joinDate.getDate() + 1;
         }
 
         if (emp.dateOfExit) {
           const exitDate = new Date(emp.dateOfExit);
           if (exitDate.getTime() < endDate.getTime()) {
-            // Exited mid-month
             const unworkedAfterExit = totalDaysInMonth - exitDate.getDate();
             activeDays = activeDays - unworkedAfterExit;
           }
@@ -104,7 +101,6 @@ export class PayrollService {
         
         activeDays = Math.max(0, activeDays);
 
-        // Fetch unpaid leave days (Approved requests of "Unpaid Leave" type in this month)
         const unpaidLeaves = await tx.leaveRequest.findMany({
           where: {
             employeeId: emp.id,
@@ -117,7 +113,6 @@ export class PayrollService {
 
         let unpaidLeaveDays = 0;
         for (const leave of unpaidLeaves) {
-          // Calculate overlap days in this month
           const leaveStart = new Date(Math.max(leave.startDate.getTime(), startDate.getTime()));
           const leaveEnd = new Date(Math.min(leave.endDate.getTime(), endDate.getTime()));
           const diff = Math.abs(leaveEnd.getTime() - leaveStart.getTime());
@@ -125,7 +120,6 @@ export class PayrollService {
           unpaidLeaveDays += overlapDays;
         }
 
-        // Fetch absences from Attendance records
         const attendances = await tx.attendance.findMany({
           where: {
             employeeId: emp.id,
@@ -144,15 +138,12 @@ export class PayrollService {
         }
 
         const totalUnpaidDays = Math.min(activeDays, unpaidLeaveDays + absentDays);
-        
-        // Calculate proration factor
         const prorationFactor = activeDays > 0 ? (activeDays - totalUnpaidDays) / totalDaysInMonth : 0;
 
         let grossPay = 0;
         let totalDeductions = 0;
         const lineItems = [];
 
-        // Calculate components
         for (const struct of emp.salaryStructures) {
           const originalValue = Number(struct.value);
           const proratedValue = Math.round(originalValue * prorationFactor * 100) / 100;
@@ -174,8 +165,7 @@ export class PayrollService {
 
         const netPay = Math.max(0, grossPay - totalDeductions);
 
-        // Save payslip
-        await tx.payslip.create({
+        const payslip = await tx.payslip.create({
           data: {
             payrollRunId: id,
             employeeId: emp.id,
@@ -185,9 +175,10 @@ export class PayrollService {
             lineItems: lineItems as any,
           },
         });
+
+        payslipsData.push(payslip);
       }
 
-      // 3. Mark run as processed
       const updatedRun = await tx.payrollRun.update({
         where: { id },
         data: {
@@ -205,8 +196,24 @@ export class PayrollService {
         afterState: updatedRun,
       }, tx);
 
-      return updatedRun;
+      return { updatedRun, payslips: payslipsData };
     });
+
+    // Notify all processed employees of their new payslip
+    for (const payslip of processedPayslips.payslips) {
+      const employeeUser = await this.prisma.user.findFirst({
+        where: { employeeId: payslip.employeeId, deletedAt: null },
+      });
+      if (employeeUser) {
+        await this.notificationsService.create(
+          employeeUser.id,
+          'Payslip Generated',
+          `Your payslip for ${month}/${year} has been processed. Net Pay: $${Number(payslip.netPay).toLocaleString()}.`,
+        );
+      }
+    }
+
+    return processedPayslips.updatedRun;
   }
 
   async payRun(id: string, actorUserId: string) {
@@ -258,7 +265,6 @@ export class PayrollService {
       throw new NotFoundException(`Payslip with ID "${id}" not found`);
     }
 
-    // RBAC access check
     const isHR = roleName === 'HR';
     const isAdmin = roleName === 'ADMIN';
     const isOwner = payslip.employeeId === requesterEmployeeId;
