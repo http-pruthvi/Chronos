@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hrms-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: DemoPassword123!
+      POSTGRES_DB: hrms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hrms-api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:DemoPassword123!@postgres:5432/hrms_db?schema=public"
+      JWT_SECRET: "hackathon_super_secret_key_123!"
+      JWT_REFRESH_SECRET: "hackathon_refresh_super_secret_key_123!"
+      PORT: 3000
+    depends_on:
+      - postgres
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hrms-web
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
