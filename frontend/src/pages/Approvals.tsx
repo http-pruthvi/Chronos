@@ -9,6 +9,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export const Approvals: React.FC = () => {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ export const Approvals: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchPendingRequests = async () => {
     if (!user) return;
@@ -44,6 +46,7 @@ export const Approvals: React.FC = () => {
     try {
       await api.patch(`/api/v1/leave-requests/${id}/${action}`);
       setSuccess(`Leave request ${action}d successfully.`);
+      toast('success', `Leave ${action === 'approve' ? 'Approved' : 'Rejected'}`, `The leave request has been ${action}d successfully.`);
       
       // Refresh list
       const response = await api.get('/api/v1/leave-requests/pending');
@@ -51,6 +54,7 @@ export const Approvals: React.FC = () => {
     } catch (err: any) {
       console.error(`Failed to ${action} leave request`, err);
       setError(err?.error?.message || err?.message || `Failed to ${action} leave request.`);
+      toast('error', 'Action Failed', err?.error?.message || err?.message || `Failed to ${action} leave request.`);
     } finally {
       setActionLoading(null);
     }
@@ -58,8 +62,25 @@ export const Approvals: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="space-y-6 animate-pulse">
+        <div>
+          <div className="h-6 bg-slate-800 rounded w-56 mb-2"></div>
+          <div className="h-3 bg-slate-850 rounded w-80"></div>
+        </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="flex items-center justify-between py-4 border-b border-slate-800/40">
+              <div className="space-y-2">
+                <div className="h-3 bg-slate-800 rounded w-32"></div>
+                <div className="h-2 bg-slate-850 rounded w-44"></div>
+              </div>
+              <div className="flex gap-2">
+                <div className="h-7 w-20 bg-slate-800 rounded"></div>
+                <div className="h-7 w-20 bg-slate-800 rounded"></div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

@@ -49,7 +49,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 ? 'bg-slate-900/90 border-rose-500/30 text-rose-300 shadow-rose-950/10' :
               t.type === 'warning'
                 ? 'bg-slate-900/90 border-amber-500/30 text-amber-300 shadow-amber-950/10' :
-              'bg-slate-900/90 border-violet-500/30 text-violet-300 shadow-violet-950/10'
+              'bg-slate-900/90 border-indigo-500/30 text-indigo-300 shadow-indigo-950/10'
             }`}
           >
             {/* Status Icon */}
@@ -57,7 +57,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               {t.type === 'success' && <CheckCircle className="w-4.5 h-4.5 text-emerald-400" />}
               {t.type === 'error' && <AlertCircle className="w-4.5 h-4.5 text-rose-400" />}
               {t.type === 'warning' && <AlertTriangle className="w-4.5 h-4.5 text-amber-400" />}
-              {t.type === 'info' && <Info className="w-4.5 h-4.5 text-violet-400" />}
+              {t.type === 'info' && <Info className="w-4.5 h-4.5 text-indigo-400" />}
             </div>
 
             {/* Content */}
@@ -81,7 +81,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   t.type === 'success' ? 'bg-emerald-500/40' :
                   t.type === 'error' ? 'bg-rose-500/40' :
                   t.type === 'warning' ? 'bg-amber-500/40' :
-                  'bg-violet-500/40'
+                  'bg-indigo-500/40'
                 }`}
                 style={{ animationDuration: `${t.duration}ms` }}
               />

@@ -52,8 +52,8 @@ export const Login: React.FC = () => {
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Handcrafted animated background mesh */}
       <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-[40%] -left-[30%] w-[80%] h-[80%] rounded-full bg-gradient-to-br from-violet-650/15 to-transparent blur-[160px] animate-[pulse_8s_infinite_alternate]"></div>
-        <div className="absolute -bottom-[40%] -right-[30%] w-[80%] h-[80%] rounded-full bg-gradient-to-tl from-fuchsia-650/10 to-transparent blur-[160px] animate-[pulse_10s_infinite_alternate]"></div>
+        <div className="absolute -top-[40%] -left-[30%] w-[80%] h-[80%] rounded-full bg-gradient-to-br from-indigo-650/15 to-transparent blur-[160px] animate-[pulse_8s_infinite_alternate]"></div>
+        <div className="absolute -bottom-[40%] -right-[30%] w-[80%] h-[80%] rounded-full bg-gradient-to-tl from-blue-650/10 to-transparent blur-[160px] animate-[pulse_10s_infinite_alternate]"></div>
         {/* Subtle grid layer */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b12_1px,transparent_1px),linear-gradient(to_bottom,#1e293b12_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       </div>
@@ -64,16 +64,16 @@ export const Login: React.FC = () => {
         }`}
       >
         {/* Glowing border accent */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
 
         {/* Branding Title */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-violet-650 to-fuchsia-600 mx-auto flex items-center justify-center shadow-lg shadow-violet-555/15 mb-4 relative group">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-650 to-blue-600 mx-auto flex items-center justify-center shadow-lg shadow-indigo-555/15 mb-4 relative group">
             <ShieldCheck className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-violet-650 to-fuchsia-600 blur-md -z-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-indigo-650 to-blue-600 blur-md -z-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
           </div>
           <h1 className="text-xl font-black text-slate-100 tracking-tight flex items-center justify-center gap-1.5">
-            CHRONOS <span className="text-xs font-bold text-violet-400 border border-violet-500/30 px-1.5 py-0.5 rounded-md">HRMS</span>
+            CHRONOS <span className="text-xs font-bold text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded-md">HRMS</span>
           </h1>
           <p className="text-slate-400 text-[11px] mt-2 font-medium">
             ERP-Grade Access Portal & Security Gated Hub
@@ -95,14 +95,14 @@ export const Login: React.FC = () => {
               Email Address
             </label>
             <div className="relative group">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-violet-400 transition-colors" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-400 transition-colors" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@demo.com"
-                className="w-full bg-slate-950/60 border border-slate-850 focus:border-violet-500/80 focus:ring-1 focus:ring-violet-500/20 rounded-xl py-3 pl-10 pr-4 text-xs text-slate-100 placeholder:text-slate-700 outline-none transition-all"
+                className="w-full bg-slate-950/60 border border-slate-850 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20 rounded-xl py-3 pl-10 pr-4 text-xs text-slate-100 placeholder:text-slate-700 outline-none transition-all"
               />
             </div>
           </div>
@@ -112,14 +112,14 @@ export const Login: React.FC = () => {
               Security Password
             </label>
             <div className="relative group">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-violet-400 transition-colors" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-400 transition-colors" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-950/60 border border-slate-850 focus:border-violet-500/80 focus:ring-1 focus:ring-violet-500/20 rounded-xl py-3 pl-10 pr-10 text-xs text-slate-100 placeholder:text-slate-700 outline-none transition-all"
+                className="w-full bg-slate-950/60 border border-slate-850 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20 rounded-xl py-3 pl-10 pr-10 text-xs text-slate-100 placeholder:text-slate-700 outline-none transition-all"
               />
               <button
                 type="button"
@@ -134,7 +134,7 @@ export const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-bold py-3 rounded-xl text-xs transition-all duration-300 shadow-md shadow-violet-555/10 hover:shadow-violet-555/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-bold py-3 rounded-xl text-xs transition-all duration-300 shadow-md shadow-indigo-555/10 hover:shadow-indigo-555/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -150,26 +150,26 @@ export const Login: React.FC = () => {
         {/* Handcrafted Quick Demo Selectors */}
         <div className="mt-8 pt-6 border-t border-slate-850">
           <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-bold mb-3">
-            <Sparkles className="w-3 h-3 text-violet-400" />
+            <Sparkles className="w-3 h-3 text-indigo-400" />
             <span>LOAD DEMO SECURITY profiles</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => handleSelectRole('admin')}
-              className="py-2 px-1 text-[10px] font-bold text-slate-350 hover:text-white bg-slate-950/40 hover:bg-slate-950 border border-slate-850 hover:border-violet-500/40 rounded-lg transition-all cursor-pointer"
+              className="py-2 px-1 text-[10px] font-bold text-slate-350 hover:text-white bg-slate-950/40 hover:bg-slate-950 border border-slate-850 hover:border-indigo-500/40 rounded-lg transition-all cursor-pointer"
             >
               ADMIN
             </button>
             <button
               onClick={() => handleSelectRole('manager')}
-              className="py-2 px-1 text-[10px] font-bold text-slate-350 hover:text-white bg-slate-950/40 hover:bg-slate-950 border border-slate-850 hover:border-violet-500/40 rounded-lg transition-all cursor-pointer"
+              className="py-2 px-1 text-[10px] font-bold text-slate-350 hover:text-white bg-slate-950/40 hover:bg-slate-950 border border-slate-850 hover:border-indigo-500/40 rounded-lg transition-all cursor-pointer"
             >
               MANAGER
             </button>
             <button
               onClick={() => handleSelectRole('employee')}
-              className="py-2 px-1 text-[10px] font-bold text-slate-350 hover:text-white bg-slate-950/40 hover:bg-slate-950 border border-slate-850 hover:border-violet-500/40 rounded-lg transition-all cursor-pointer"
+              className="py-2 px-1 text-[10px] font-bold text-slate-350 hover:text-white bg-slate-950/40 hover:bg-slate-950 border border-slate-850 hover:border-indigo-500/40 rounded-lg transition-all cursor-pointer"
             >
               EMPLOYEE
             </button>

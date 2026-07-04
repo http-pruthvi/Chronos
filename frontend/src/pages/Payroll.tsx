@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   X
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 
 export const Payroll: React.FC = () => {
@@ -37,6 +38,7 @@ export const Payroll: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchRuns = async () => {
     try {
@@ -70,11 +72,13 @@ export const Payroll: React.FC = () => {
     try {
       const response = await api.post('/api/v1/payroll/runs', { month, year });
       setSuccess(`Payroll run for ${month}/${year} created in DRAFT status.`);
+      toast('success', 'Run Created', `Payroll run for ${month}/${year} created in DRAFT status.`);
       await fetchRuns();
       handleSelectRun(response.id);
     } catch (err: any) {
       console.error('Failed to create run', err);
       setError(err?.error?.message || err?.message || 'Failed to create run.');
+      toast('error', 'Creation Failed', err?.error?.message || err?.message || 'Failed to create run.');
     } finally {
       setActionLoading(null);
     }
@@ -102,11 +106,13 @@ export const Payroll: React.FC = () => {
     try {
       await api.post(`/api/v1/payroll/runs/${id}/process`);
       setSuccess(`Calculations completed! Generated employee payslips successfully.`);
+      toast('success', 'Payroll Processed', 'Employee payslips generated successfully.');
       await fetchRuns();
       await handleSelectRun(id);
     } catch (err: any) {
       console.error('Processing run failed', err);
       setError(err?.error?.message || err?.message || 'Failed to process run.');
+      toast('error', 'Processing Failed', err?.error?.message || err?.message || 'Failed to process run.');
     } finally {
       setActionLoading(null);
     }
@@ -120,11 +126,13 @@ export const Payroll: React.FC = () => {
     try {
       await api.post(`/api/v1/payroll/runs/${id}/pay`);
       setSuccess(`Payroll run locked and paid successfully.`);
+      toast('success', 'Payroll Paid', 'Run locked and marked as paid. This action is irreversible.');
       await fetchRuns();
       await handleSelectRun(id);
     } catch (err: any) {
       console.error('Paying run failed', err);
       setError(err?.error?.message || err?.message || 'Failed to complete transaction.');
+      toast('error', 'Payment Failed', err?.error?.message || err?.message || 'Failed to complete transaction.');
     } finally {
       setActionLoading(null);
     }
@@ -153,8 +161,27 @@ export const Payroll: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="space-y-8 animate-pulse">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="space-y-6">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div className="h-4 bg-slate-800 rounded w-32"></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-10 bg-slate-800 rounded-lg"></div>
+                <div className="h-10 bg-slate-800 rounded-lg"></div>
+              </div>
+              <div className="h-10 bg-slate-800 rounded-lg"></div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-3">
+              <div className="h-4 bg-slate-800 rounded w-40"></div>
+              {[1, 2, 3].map(i => (<div key={i} className="h-14 bg-slate-800 rounded-lg"></div>))}
+            </div>
+          </div>
+          <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+            <div className="h-5 bg-slate-800 rounded w-48"></div>
+            {[1, 2, 3, 4].map(i => (<div key={i} className="h-10 bg-slate-800 rounded"></div>))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -182,7 +209,7 @@ export const Payroll: React.FC = () => {
           {/* Create Run Form */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
             <h3 className="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-violet-400" />
+              <Plus className="w-4 h-4 text-indigo-400" />
               <span>New Payroll Run</span>
             </h3>
             
@@ -197,7 +224,7 @@ export const Payroll: React.FC = () => {
                     max={12}
                     value={month}
                     onChange={(e) => setMonth(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   />
                 </div>
                 <div>
@@ -208,7 +235,7 @@ export const Payroll: React.FC = () => {
                     min={2000}
                     value={year}
                     onChange={(e) => setYear(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   />
                 </div>
               </div>
@@ -216,7 +243,7 @@ export const Payroll: React.FC = () => {
               <button
                 type="submit"
                 disabled={actionLoading === 'create'}
-                className="w-full bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-violet-555/15 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-indigo-555/15 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {actionLoading === 'create' && <Loader2 className="w-4 h-4 animate-spin" />}
                 <span>Create Run</span>
@@ -227,7 +254,7 @@ export const Payroll: React.FC = () => {
           {/* Runs History List */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
             <h3 className="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-violet-400" />
+              <DollarSign className="w-4 h-4 text-indigo-400" />
               <span>Payroll Runs History</span>
             </h3>
 
@@ -243,7 +270,7 @@ export const Payroll: React.FC = () => {
                       onClick={() => handleSelectRun(run.id)}
                       className={`p-3 rounded-lg border transition-all duration-200 cursor-pointer flex items-center justify-between text-xs ${
                         isSelected 
-                          ? 'bg-violet-950/10 border-violet-500/40' 
+                          ? 'bg-indigo-950/10 border-indigo-500/40' 
                           : 'bg-slate-950 border-slate-850 hover:border-slate-800'
                       }`}
                     >
@@ -262,7 +289,7 @@ export const Payroll: React.FC = () => {
                           {run.status}
                         </span>
                         {actionLoading === 'select-' + run.id && (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-400 ml-auto mt-1" />
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400 ml-auto mt-1" />
                         )}
                       </div>
                     </div>
@@ -299,7 +326,7 @@ export const Payroll: React.FC = () => {
                     <button
                       onClick={() => handleProcessRun(selectedRun.id)}
                       disabled={actionLoading === 'process'}
-                      className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold text-xs flex items-center gap-1 transition-all cursor-pointer disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold text-xs flex items-center gap-1 transition-all cursor-pointer disabled:opacity-50"
                     >
                       {actionLoading === 'process' ? (
                         <Loader2 className="w-3 h-3 animate-spin" />

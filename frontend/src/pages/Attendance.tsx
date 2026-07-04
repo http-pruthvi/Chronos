@@ -10,6 +10,7 @@ import {
   CheckCircle,
   AlertCircle 
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 export const Attendance: React.FC = () => {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ export const Attendance: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [time, setTime] = useState<string>(new Date().toLocaleTimeString());
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Digital clock update
   useEffect(() => {
@@ -55,9 +57,11 @@ export const Attendance: React.FC = () => {
     try {
       const response = await api.post('/api/v1/attendance/check-in');
       setTodayRecord(response);
+      toast('success', 'Clock In Recorded', 'Your attendance check-in has been logged successfully.');
     } catch (err: any) {
       console.error('Check-in error', err);
       setError(err?.error?.message || err?.message || 'Check-in failed.');
+      toast('error', 'Check-In Failed', err?.error?.message || err?.message || 'Check-in failed.');
     } finally {
       setActionLoading(false);
     }
@@ -69,9 +73,11 @@ export const Attendance: React.FC = () => {
     try {
       const response = await api.post('/api/v1/attendance/check-out');
       setTodayRecord(response);
+      toast('success', 'Clock Out Recorded', 'Your shift has been logged. Have a great evening!');
     } catch (err: any) {
       console.error('Check-out error', err);
       setError(err?.error?.message || err?.message || 'Check-out failed.');
+      toast('error', 'Check-Out Failed', err?.error?.message || err?.message || 'Check-out failed.');
     } finally {
       setActionLoading(false);
     }
@@ -79,8 +85,17 @@ export const Attendance: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="max-w-md mx-auto space-y-8 animate-pulse">
+        <div className="text-center space-y-3">
+          <div className="w-16 h-16 bg-slate-800 rounded-full mx-auto"></div>
+          <div className="h-8 bg-slate-800 rounded-lg w-48 mx-auto"></div>
+          <div className="h-3 bg-slate-850 rounded w-56 mx-auto"></div>
+        </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+          <div className="h-4 bg-slate-800 rounded w-32 mx-auto"></div>
+          <div className="h-12 bg-slate-800 rounded-xl"></div>
+          <div className="h-3 bg-slate-850 rounded w-48 mx-auto"></div>
+        </div>
       </div>
     );
   }
@@ -92,7 +107,7 @@ export const Attendance: React.FC = () => {
     <div className="max-w-md mx-auto space-y-8">
       {/* Clock & Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center p-4 bg-slate-900 border border-slate-800 rounded-full text-violet-400 mb-2">
+        <div className="inline-flex items-center justify-center p-4 bg-slate-900 border border-slate-800 rounded-full text-indigo-400 mb-2">
           <Clock className="w-8 h-8 animate-pulse" />
         </div>
         <h1 className="text-3xl font-extrabold text-slate-100 tabular-nums">{time}</h1>
@@ -112,7 +127,7 @@ export const Attendance: React.FC = () => {
       {/* Action Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl shadow-black/30 space-y-6 relative overflow-hidden">
         {/* Glow behind card */}
-        <div className="absolute -top-12 -left-12 w-24 h-24 rounded-full bg-violet-500/5 blur-xl"></div>
+        <div className="absolute -top-12 -left-12 w-24 h-24 rounded-full bg-indigo-500/5 blur-xl"></div>
 
         <div className="text-center space-y-1">
           <span className="text-[10px] uppercase font-bold text-slate-500">Attendance Status</span>
@@ -169,7 +184,7 @@ export const Attendance: React.FC = () => {
             <button
               onClick={handleCheckIn}
               disabled={actionLoading}
-              className="w-full bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold py-3 rounded-xl text-sm transition-all duration-300 shadow-lg shadow-violet-500/10 hover:shadow-violet-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold py-3 rounded-xl text-sm transition-all duration-300 shadow-lg shadow-indigo-500/10 hover:shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {actionLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

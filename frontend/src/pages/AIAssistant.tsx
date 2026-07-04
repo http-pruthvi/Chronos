@@ -83,7 +83,7 @@ export const AIAssistant: React.FC = () => {
     const parts = text.split('**');
     return parts.map((part, index) => {
       if (index % 2 === 1) {
-        return <strong key={index} className="font-extrabold text-violet-300">{part}</strong>;
+        return <strong key={index} className="font-extrabold text-indigo-300">{part}</strong>;
       }
       return part;
     });
@@ -92,12 +92,12 @@ export const AIAssistant: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto h-[calc(100vh-12rem)] flex flex-col justify-between bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
       {/* Glow effect */}
-      <div className="absolute top-0 right-0 w-48 h-48 bg-violet-650/5 blur-3xl pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-650/5 blur-3xl pointer-events-none"></div>
 
       {/* Title Header */}
       <div className="px-6 py-4 bg-slate-850/50 border-b border-slate-850 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-fuchsia-500 flex items-center justify-center text-white">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
@@ -117,7 +117,7 @@ export const AIAssistant: React.FC = () => {
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border text-xs font-semibold ${
                 isUser 
                   ? 'bg-slate-950 border-slate-800 text-slate-400' 
-                  : 'bg-violet-950/20 border-violet-500/20 text-violet-400'
+                  : 'bg-indigo-950/20 border-indigo-500/20 text-indigo-400'
               }`}>
                 {isUser ? <User className="w-4.5 h-4.5" /> : <Bot className="w-4.5 h-4.5" />}
               </div>
@@ -125,13 +125,13 @@ export const AIAssistant: React.FC = () => {
               {/* Speech Bubble */}
               <div className={`p-4 rounded-2xl max-w-lg text-xs leading-relaxed ${
                 isUser
-                  ? 'bg-gradient-to-r from-violet-650 to-fuchsia-600 text-white rounded-tr-none'
+                  ? 'bg-gradient-to-r from-indigo-650 to-blue-600 text-white rounded-tr-none'
                   : 'bg-slate-950 text-slate-250 rounded-tl-none border border-slate-850/80 shadow-md shadow-black/10'
               }`}>
                 <div className="whitespace-pre-line">
                   {renderMessageText(msg.text)}
                 </div>
-                <span className={`text-[8px] block mt-2 text-right ${isUser ? 'text-violet-200' : 'text-slate-550'}`}>
+                <span className={`text-[8px] block mt-2 text-right ${isUser ? 'text-indigo-200' : 'text-slate-550'}`}>
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -141,7 +141,7 @@ export const AIAssistant: React.FC = () => {
 
         {loading && (
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border bg-violet-950/20 border-violet-500/20 text-violet-400">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border bg-indigo-950/20 border-indigo-500/20 text-indigo-400">
               <Bot className="w-4.5 h-4.5" />
             </div>
             <div className="p-4 rounded-2xl bg-slate-950 rounded-tl-none border border-slate-850/80 shadow-md flex items-center gap-2 text-xs text-slate-450">
@@ -191,12 +191,12 @@ export const AIAssistant: React.FC = () => {
             disabled={loading}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about carry-forward, overlaps, check-in grace period..."
-            className="flex-1 bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-violet-500 transition-all disabled:opacity-50"
+            className="flex-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="p-3 bg-gradient-to-tr from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white rounded-xl transition-all duration-300 shadow-md shadow-violet-500/10 hover:shadow-violet-500/25 flex items-center justify-center shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-3 bg-gradient-to-tr from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white rounded-xl transition-all duration-300 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/25 flex items-center justify-center shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4" />
           </button>

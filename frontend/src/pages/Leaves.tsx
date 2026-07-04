@@ -8,6 +8,7 @@ import {
   CheckCircle,
   AlertCircle 
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 export const Leaves: React.FC = () => {
   const [balances, setBalances] = useState<any[]>([]);
@@ -25,6 +26,7 @@ export const Leaves: React.FC = () => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
@@ -65,6 +67,7 @@ export const Leaves: React.FC = () => {
       });
 
       setSuccess('Leave request applied successfully!');
+      toast('success', 'Leave Applied', 'Your leave request has been submitted for approval.');
       setLeaveTypeId('');
       setStartDate('');
       setEndDate('');
@@ -80,6 +83,7 @@ export const Leaves: React.FC = () => {
     } catch (err: any) {
       console.error('Apply leave error', err);
       setError(err?.error?.message || err?.message || 'Failed to submit leave request.');
+      toast('error', 'Submission Failed', err?.error?.message || err?.message || 'Failed to submit leave request.');
     } finally {
       setSubmitLoading(false);
     }
@@ -92,6 +96,7 @@ export const Leaves: React.FC = () => {
     try {
       await api.patch(`/api/v1/leave-requests/${id}/cancel`);
       setSuccess('Leave request cancelled successfully.');
+      toast('info', 'Leave Cancelled', 'Your pending leave request has been withdrawn.');
       
       // Refresh balances and list
       const [balRes, reqRes] = await Promise.all([
@@ -103,13 +108,35 @@ export const Leaves: React.FC = () => {
     } catch (err: any) {
       console.error('Cancel leave error', err);
       setError(err?.error?.message || err?.message || 'Failed to cancel leave request.');
+      toast('error', 'Cancellation Failed', err?.error?.message || err?.message || 'Failed to cancel leave request.');
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="space-y-8 animate-pulse">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <div className="h-4 bg-slate-800 rounded w-40 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="p-4 bg-slate-950 rounded-lg border border-slate-850 space-y-3">
+                <div className="h-3 bg-slate-800 rounded w-24"></div>
+                <div className="h-2 bg-slate-800 rounded-full"></div>
+                <div className="h-2 bg-slate-850 rounded w-16"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+            <div className="h-4 bg-slate-800 rounded w-32"></div>
+            {[1, 2, 3, 4].map(i => (<div key={i} className="h-10 bg-slate-800 rounded-lg"></div>))}
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 lg:col-span-2 space-y-4">
+            <div className="h-4 bg-slate-800 rounded w-44"></div>
+            {[1, 2, 3].map(i => (<div key={i} className="h-8 bg-slate-800 rounded"></div>))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -119,7 +146,7 @@ export const Leaves: React.FC = () => {
       {/* Balances Display */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
         <h3 className="text-sm font-semibold text-slate-200 mb-6 flex items-center gap-2">
-          <FileText className="w-4 h-4 text-violet-400" />
+          <FileText className="w-4 h-4 text-indigo-400" />
           <span>My Leave Balances</span>
         </h3>
         
@@ -138,7 +165,7 @@ export const Leaves: React.FC = () => {
                 </div>
                 <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full" 
+                    className="h-full bg-gradient-to-r from-indigo-600 to-blue-500 rounded-full" 
                     style={{ width: `${100 - percentage}%` }}
                   ></div>
                 </div>
@@ -154,7 +181,7 @@ export const Leaves: React.FC = () => {
         {/* Apply Form */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md h-fit">
           <h3 className="text-sm font-semibold text-slate-200 mb-6 flex items-center gap-2">
-            <Send className="w-4 h-4 text-violet-400" />
+            <Send className="w-4 h-4 text-indigo-400" />
             <span>Apply for Leave</span>
           </h3>
 
@@ -179,7 +206,7 @@ export const Leaves: React.FC = () => {
                 required
                 value={leaveTypeId}
                 onChange={(e) => setLeaveTypeId(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
               >
                 <option value="">Select Type</option>
                 {leaveTypes.map((type) => (
@@ -196,7 +223,7 @@ export const Leaves: React.FC = () => {
                   required
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                 />
               </div>
               <div>
@@ -206,7 +233,7 @@ export const Leaves: React.FC = () => {
                   required
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                 />
               </div>
             </div>
@@ -219,14 +246,14 @@ export const Leaves: React.FC = () => {
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Details of your request..."
-                className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none resize-none"
+                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none resize-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitLoading}
-              className="w-full bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-violet-500/10 hover:shadow-violet-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {submitLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               <span>Submit Application</span>

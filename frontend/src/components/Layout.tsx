@@ -47,10 +47,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           {/* Logo */}
           <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-900/50">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-fuchsia-500 flex items-center justify-center font-bold text-white shadow-lg shadow-violet-500/20">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
                 C
               </div>
-              <span className="font-bold text-lg bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+              <span className="font-bold text-lg bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">
                 Chronos HRMS
               </span>
             </div>
@@ -68,15 +68,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     to={item.path}
                     className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group ${
                       isActive
-                        ? 'bg-gradient-to-r from-violet-600/20 to-fuchsia-600/10 text-violet-300 border-l-2 border-violet-500 shadow-md shadow-violet-500/5'
+                        ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/10 text-indigo-300 border-l-2 border-indigo-500 shadow-md shadow-indigo-500/5'
                         : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-violet-400' : 'text-slate-400 group-hover:text-slate-200'}`} />
+                      <item.icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-indigo-400' : 'text-slate-400 group-hover:text-slate-200'}`} />
                       <span>{item.name}</span>
                     </div>
-                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-violet-400" />}
+                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-indigo-400" />}
                   </Link>
                 );
               })}
@@ -86,14 +86,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {/* User Card & Logout */}
         <div className="p-4 border-t border-slate-800 bg-slate-900/30">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-semibold text-violet-400 shadow-inner">
+            <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-semibold text-indigo-400 shadow-inner">
               {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase()}
             </div>
             <div className="truncate">
               <p className="text-sm font-semibold text-slate-200 truncate">
                 {user?.firstName} {user?.lastName}
               </p>
-              <span className="text-xs px-2 py-0.5 rounded bg-slate-800/80 text-violet-400 border border-violet-500/20 font-medium">
+              <span className="text-xs px-2 py-0.5 rounded bg-slate-800/80 text-indigo-400 border border-indigo-500/20 font-medium">
                 {user?.role}
               </span>
             </div>
@@ -124,7 +124,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-500 border border-slate-900 text-white font-bold text-[10px] flex items-center justify-center shadow-lg shadow-violet-500/30 animate-pulse">
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-500 border border-slate-900 text-white font-bold text-[10px] flex items-center justify-center shadow-lg shadow-indigo-500/30 animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -136,7 +136,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <div className="px-4 py-3 bg-slate-850/50 border-b border-slate-800 flex items-center justify-between">
                   <span className="font-semibold text-sm text-slate-200">In-App Alerts</span>
                   {unreadCount > 0 && (
-                    <span className="text-xs text-violet-400 font-medium">
+                    <span className="text-xs text-indigo-400 font-medium">
                       {unreadCount} Unread
                     </span>
                   )}
@@ -155,15 +155,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                           if (!item.isRead) markAsRead(item.id);
                         }}
                         className={`p-4 hover:bg-slate-800/40 transition-colors duration-150 cursor-pointer ${
-                          !item.isRead ? 'bg-violet-950/5' : ''
+                          !item.isRead ? 'bg-indigo-950/5' : ''
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <span className={`text-xs font-semibold ${!item.isRead ? 'text-violet-300' : 'text-slate-300'}`}>
+                          <span className={`text-xs font-semibold ${!item.isRead ? 'text-indigo-300' : 'text-slate-300'}`}>
                             {item.title}
                           </span>
                           {!item.isRead && (
-                            <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0 mt-1"></span>
+                            <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0 mt-1"></span>
                           )}
                         </div>
                         <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">

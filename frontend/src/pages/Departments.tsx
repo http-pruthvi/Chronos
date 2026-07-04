@@ -121,7 +121,7 @@ export const Departments: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -135,7 +135,7 @@ export const Departments: React.FC = () => {
         </div>
         <button
           onClick={openCreateModal}
-          className="bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-md shadow-violet-555/15 cursor-pointer"
+          className="bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-md shadow-indigo-555/15 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Create Department</span>
@@ -170,7 +170,7 @@ export const Departments: React.FC = () => {
             <tbody className="divide-y divide-slate-800/40">
               {departments.map((dept) => (
                 <tr key={dept.id} className="hover:bg-slate-850/10 transition-colors">
-                  <td className="py-3.5 text-violet-400 font-semibold uppercase">{dept.code}</td>
+                  <td className="py-3.5 text-indigo-400 font-semibold uppercase">{dept.code}</td>
                   <td className="py-3.5 text-slate-200 font-semibold">{dept.name}</td>
                   <td className="py-3.5 text-slate-400">
                     {dept.headEmployee ? `${dept.headEmployee.firstName} ${dept.headEmployee.lastName}` : '--'}
@@ -212,7 +212,7 @@ export const Departments: React.FC = () => {
             </button>
 
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-violet-400" />
+              <Briefcase className="w-4 h-4 text-indigo-400" />
               <span>{isEdit ? 'Edit Department Details' : 'Create Department'}</span>
             </h3>
 
@@ -232,7 +232,7 @@ export const Departments: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Engineering"
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                 />
               </div>
 
@@ -244,7 +244,7 @@ export const Departments: React.FC = () => {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="ENG"
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export const Departments: React.FC = () => {
                 <select
                   value={headEmployeeId}
                   onChange={(e) => setHeadEmployeeId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                 >
                   <option value="">No Department Head Assigned</option>
                   {employees.map((emp) => (
@@ -265,7 +265,7 @@ export const Departments: React.FC = () => {
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="w-full bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-violet-555/15 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-indigo-555/15 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 <span>{isEdit ? 'Save Changes' : 'Create Department'}</span>

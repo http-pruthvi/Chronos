@@ -10,6 +10,7 @@ import {
   CheckCircle,
   Plus
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 export const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -18,6 +19,7 @@ export const Employees: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Modal State
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -113,6 +115,7 @@ export const Employees: React.FC = () => {
           roleName,
         });
         setSuccess('Employee record updated successfully.');
+        toast('success', 'Profile Updated', 'Employee record updated successfully.');
       } else {
         await api.post('/api/v1/employees', {
           firstName,
@@ -128,6 +131,7 @@ export const Employees: React.FC = () => {
           password,
         });
         setSuccess('Employee registered successfully.');
+        toast('success', 'Employee Registered', 'New employee profile created and portal access provisioned.');
       }
 
       setShowModal(false);
@@ -135,6 +139,7 @@ export const Employees: React.FC = () => {
     } catch (err: any) {
       console.error('Submit employee failed', err);
       setError(err?.error?.message || err?.message || 'Failed to save employee profile.');
+      toast('error', 'Save Failed', err?.error?.message || err?.message || 'Failed to save employee profile.');
     } finally {
       setActionLoading(false);
     }
@@ -147,17 +152,43 @@ export const Employees: React.FC = () => {
     try {
       await api.delete(`/api/v1/employees/${id}`);
       setSuccess('Employee deleted successfully.');
+      toast('info', 'Employee Removed', 'Employee record has been soft-deleted from the directory.');
       await loadData();
     } catch (err: any) {
       console.error('Delete employee failed', err);
       setError(err?.error?.message || err?.message || 'Failed to delete employee.');
+      toast('error', 'Deletion Failed', err?.error?.message || err?.message || 'Failed to delete employee.');
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="space-y-6 animate-pulse">
+        <div className="flex justify-between items-center">
+          <div>
+            <div className="h-6 bg-slate-800 rounded w-44 mb-2"></div>
+            <div className="h-3 bg-slate-850 rounded w-72"></div>
+          </div>
+          <div className="h-9 w-36 bg-slate-800 rounded-lg"></div>
+        </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-7 gap-4 pb-3 border-b border-slate-800">
+              {[1, 2, 3, 4, 5, 6, 7].map(i => (<div key={i} className="h-3 bg-slate-800 rounded"></div>))}
+            </div>
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="grid grid-cols-7 gap-4 py-3">
+                <div className="h-3 bg-slate-800 rounded"></div>
+                <div className="space-y-1"><div className="h-3 bg-slate-800 rounded"></div><div className="h-2 bg-slate-850 rounded w-3/4"></div></div>
+                <div className="h-3 bg-slate-800 rounded"></div>
+                <div className="h-3 bg-slate-800 rounded"></div>
+                <div className="h-3 bg-slate-800 rounded"></div>
+                <div className="h-5 w-16 bg-slate-800 rounded"></div>
+                <div className="flex justify-end gap-1"><div className="h-7 w-7 bg-slate-800 rounded"></div><div className="h-7 w-7 bg-slate-800 rounded"></div></div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -171,7 +202,7 @@ export const Employees: React.FC = () => {
         </div>
         <button
           onClick={openCreateModal}
-          className="bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-md shadow-violet-550/15 cursor-pointer"
+          className="bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-md shadow-indigo-550/15 cursor-pointer"
         >
           <UserPlus className="w-4 h-4" />
           <span>Add Employee</span>
@@ -209,7 +240,7 @@ export const Employees: React.FC = () => {
             <tbody className="divide-y divide-slate-800/40">
               {employees.map((emp) => (
                 <tr key={emp.id} className="hover:bg-slate-850/10 transition-colors">
-                  <td className="py-3.5 text-violet-400 font-semibold">{emp.employeeCode}</td>
+                  <td className="py-3.5 text-indigo-400 font-semibold">{emp.employeeCode}</td>
                   <td className="py-3.5">
                     <p className="font-semibold text-slate-200">{emp.firstName} {emp.lastName}</p>
                     <span className="text-[10px] text-slate-500">{emp.email}</span>
@@ -264,7 +295,7 @@ export const Employees: React.FC = () => {
             </button>
 
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-violet-400" />
+              <Plus className="w-4 h-4 text-indigo-400" />
               <span>{isEdit ? 'Edit Employee Details' : 'Register New Employee'}</span>
             </h3>
 
@@ -285,7 +316,7 @@ export const Employees: React.FC = () => {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="John"
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   />
                 </div>
                 <div>
@@ -296,7 +327,7 @@ export const Employees: React.FC = () => {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Smith"
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   />
                 </div>
               </div>
@@ -311,7 +342,7 @@ export const Employees: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="john.smith@company.com"
-                      className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                      className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                     />
                   </div>
                   <div>
@@ -322,7 +353,7 @@ export const Employees: React.FC = () => {
                       value={employeeCode}
                       onChange={(e) => setEmployeeCode(e.target.value)}
                       placeholder="EMP-101"
-                      className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                      className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                     />
                   </div>
                 </div>
@@ -337,7 +368,7 @@ export const Employees: React.FC = () => {
                     value={designation}
                     onChange={(e) => setDesignation(e.target.value)}
                     placeholder="Software Engineer"
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   />
                 </div>
                 <div>
@@ -346,7 +377,7 @@ export const Employees: React.FC = () => {
                     required
                     value={departmentId}
                     onChange={(e) => setDepartmentId(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   >
                     <option value="">Select Department</option>
                     {departments.map((dept) => (
@@ -362,7 +393,7 @@ export const Employees: React.FC = () => {
                   <select
                     value={managerId}
                     onChange={(e) => setManagerId(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   >
                     <option value="">No Manager (Root)</option>
                     {employees
@@ -378,7 +409,7 @@ export const Employees: React.FC = () => {
                     required
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   >
                     <option value="ACTIVE">ACTIVE</option>
                     <option value="SUSPENDED">SUSPENDED</option>
@@ -394,7 +425,7 @@ export const Employees: React.FC = () => {
                     required
                     value={roleName}
                     onChange={(e) => setRoleName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   >
                     <option value="EMPLOYEE">EMPLOYEE</option>
                     <option value="MANAGER">MANAGER</option>
@@ -410,7 +441,7 @@ export const Employees: React.FC = () => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                      className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                     />
                   </div>
                 ) : (
@@ -434,7 +465,7 @@ export const Employees: React.FC = () => {
                     required
                     value={dateOfJoining}
                     onChange={(e) => setDateOfJoining(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-violet-500 rounded-lg p-2.5 text-slate-200 outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2.5 text-slate-200 outline-none"
                   />
                 </div>
               )}
@@ -442,7 +473,7 @@ export const Employees: React.FC = () => {
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="w-full bg-gradient-to-r from-violet-650 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-violet-550/15 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-indigo-650 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 shadow-md shadow-indigo-550/15 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 <span>{isEdit ? 'Save Changes' : 'Register Profile'}</span>

@@ -46,8 +46,37 @@ export const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="space-y-8 animate-pulse">
+        <div className="flex justify-between items-center">
+          <div>
+            <div className="h-6 bg-slate-800 rounded w-48 mb-2"></div>
+            <div className="h-3 bg-slate-850 rounded w-64"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+              <div className="space-y-2">
+                <div className="h-2 bg-slate-800 rounded w-20"></div>
+                <div className="h-7 bg-slate-800 rounded w-12"></div>
+                <div className="h-2 bg-slate-850 rounded w-16"></div>
+              </div>
+              <div className="w-12 h-12 bg-slate-800 rounded-lg"></div>
+            </div>
+          ))}
+        </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+          <div className="h-4 bg-slate-800 rounded w-48"></div>
+          {[1, 2, 3].map(i => (
+            <div key={i} className="space-y-2">
+              <div className="flex justify-between">
+                <div className="h-3 bg-slate-800 rounded w-28"></div>
+                <div className="h-3 bg-slate-800 rounded w-20"></div>
+              </div>
+              <div className="h-2.5 bg-slate-800 rounded-full"></div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -83,7 +112,7 @@ export const Dashboard: React.FC = () => {
               <span className="text-2xl font-bold text-slate-100 block mt-1">{data?.totalEmployees}</span>
               <span className="text-[10px] text-emerald-400 mt-1 inline-block">Active staff</span>
             </div>
-            <div className="p-3 bg-violet-950/30 rounded-lg text-violet-400">
+            <div className="p-3 bg-indigo-950/30 rounded-lg text-indigo-400">
               <Users className="w-6 h-6" />
             </div>
           </div>
@@ -127,7 +156,7 @@ export const Dashboard: React.FC = () => {
         {/* Headcount by Department */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg shadow-black/10">
           <h3 className="text-sm font-semibold text-slate-200 mb-6 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-violet-400" />
+            <TrendingUp className="w-4 h-4 text-indigo-400" />
             <span>Headcount by Department</span>
           </h3>
 
@@ -143,7 +172,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full" 
+                      className="h-full bg-gradient-to-r from-indigo-600 to-blue-500 rounded-full" 
                       style={{ width: `${percentage}%` }}
                     ></div>
                   </div>
@@ -172,7 +201,7 @@ export const Dashboard: React.FC = () => {
               <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">Team size</span>
               <span className="text-2xl font-bold text-slate-100 mt-1 block">{data?.teamSize}</span>
             </div>
-            <div className="p-3 bg-violet-950/30 rounded-lg text-violet-400">
+            <div className="p-3 bg-indigo-950/30 rounded-lg text-indigo-400">
               <Users className="w-6 h-6" />
             </div>
           </div>
@@ -267,26 +296,26 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-violet-900/30 to-fuchsia-900/20 border border-violet-850/30 flex items-center justify-between shadow-lg shadow-violet-550/5">
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-indigo-900/30 to-blue-900/20 border border-indigo-850/30 flex items-center justify-between shadow-lg shadow-indigo-550/5">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-violet-400" />
+            <Sparkles className="w-5 h-5 text-indigo-400" />
             <h1 className="text-xl font-bold text-slate-100">Welcome, {user?.firstName}!</h1>
           </div>
           <p className="text-xs text-slate-300 leading-relaxed max-w-lg">
-            Have questions about leave policies or attendance times? Simply ask our <Link to="/ai-assistant" className="text-violet-400 hover:text-violet-300 font-semibold underline">AI Policy Assistant</Link> anytime.
+            Have questions about leave policies or attendance times? Simply ask our <Link to="/ai-assistant" className="text-indigo-400 hover:text-indigo-300 font-semibold underline">AI Policy Assistant</Link> anytime.
           </p>
         </div>
         <div className="hidden md:flex flex-col items-center p-3 bg-slate-900/60 border border-slate-800 rounded-xl">
           <span className="text-[9px] uppercase tracking-wider font-semibold text-slate-500">Clocking Streak</span>
-          <span className="text-2xl font-black text-violet-400 mt-1">{presentStats.streakDays} Days</span>
+          <span className="text-2xl font-black text-indigo-400 mt-1">{presentStats.streakDays} Days</span>
         </div>
       </div>
 
       {/* Leave Balances Grid */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
         <h3 className="text-sm font-semibold text-slate-200 mb-6 flex items-center gap-2">
-          <FileText className="w-4 h-4 text-violet-400" />
+          <FileText className="w-4 h-4 text-indigo-400" />
           <span>My Leave Balances ({new Date().getFullYear()})</span>
         </h3>
         
@@ -304,7 +333,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full" 
+                      className="h-full bg-gradient-to-r from-indigo-600 to-blue-500 rounded-full" 
                       style={{ width: `${100 - percentage}%` }}
                     ></div>
                   </div>
@@ -356,7 +385,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <Link
                       to={`/payroll`}
-                      className="px-3 py-1 bg-slate-800 hover:bg-violet-950/40 border border-slate-700 hover:border-violet-800/40 text-violet-400 hover:text-violet-300 rounded text-[10px] font-semibold transition-all duration-200"
+                      className="px-3 py-1 bg-slate-800 hover:bg-indigo-950/40 border border-slate-700 hover:border-indigo-800/40 text-indigo-400 hover:text-indigo-300 rounded text-[10px] font-semibold transition-all duration-200"
                     >
                       View
                     </Link>
